@@ -1,6 +1,9 @@
 import asyncio
 import logging
 
+from ocpp.v201.datatypes import IdTokenType
+
+
 try:
     import websockets
 except ModuleNotFoundError:
@@ -26,6 +29,25 @@ class ChargePoint(cp):
             await self.call(request)
             await asyncio.sleep(interval)
 
+    async def authorize_request(self):
+        try:
+            request = call.AuthorizePayload(
+                id_token={
+                 'id_token':'dcdcsadcsd',
+                  'type':'ISO14443'
+                }
+            )
+
+            response = await self.call(request)
+            print(response)
+            print(response.id_token_info)
+            print(response.id_token_info['status'])
+            if response.id_token_info['status'] == 'Accepted':
+                print('Authorization successful')
+
+        except KeyError:
+            print('Exception while authorizing the request')
+
     async def send_boot_notification(self):
         request = call.BootNotificationPayload(
             charging_station={
@@ -38,7 +60,8 @@ class ChargePoint(cp):
 
         if response.status == 'Accepted':
             print("Connected to central system.")
-            await self.send_heartbeat(response.interval)
+            #await self.send_heartbeat(response.interval)
+            await self.authorize_request()
 
 
 async def main():

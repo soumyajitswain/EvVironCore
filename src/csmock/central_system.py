@@ -1,6 +1,8 @@
+from argparse import Action
 import asyncio
 import logging
 from datetime import datetime
+from ocpp.v201.enums import AuthorizationStatusType, Action
 
 try:
     import websockets
@@ -33,6 +35,13 @@ class ChargePoint(cp):
         print('Got a Heartbeat!')
         return call_result.HeartbeatPayload(
             current_time=datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S') + "Z"
+        )
+    
+    @on(Action.Authorize)
+    def on_authorize_request(self, id_token):
+        print('Authorize Request!')
+        return call_result.AuthorizePayload(
+          id_token_info={"status": AuthorizationStatusType.accepted}
         )
 
 
