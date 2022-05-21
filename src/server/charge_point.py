@@ -1,6 +1,8 @@
 import asyncio
 import logging
 
+from requests import request
+
 from ocpp.v201.datatypes import IdTokenType
 
 
@@ -61,8 +63,34 @@ class ChargePoint(cp):
         if response.status == 'Accepted':
             print("Connected to central system.")
             #await self.send_heartbeat(response.interval)
-            await self.authorize_request()
+            #await self.authorize_request()
+            response = await self.request_start_transaction_request()
+            await self.request_stop_transaction_request(response.transaction_id)
 
+    async def request_start_transaction_request(self):
+        try:
+            request = call.RequestStartTransactionPayload(
+                id_token={
+                 'id_token':'dcdcsadcsd',
+                  'type':'ISO14443'
+                },
+                remote_start_id=1233
+                )
+
+            response = await self.call(request)
+            return response
+        except KeyError:
+            print('Exception')      
+
+    async def request_stop_transaction_request(self, transactionId):
+        try:
+            request = call.RequestStopTransactionPayload(
+                transaction_id=transactionId
+                )
+
+            response = await self.call(request)
+        except KeyError:
+            print('Exception')      
 
 async def main():
     async with websockets.connect(

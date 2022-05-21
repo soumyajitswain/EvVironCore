@@ -2,7 +2,7 @@ from argparse import Action
 import asyncio
 import logging
 from datetime import datetime
-from ocpp.v201.enums import AuthorizationStatusType, Action
+from ocpp.v201.enums import AuthorizationStatusType, Action, RequestStartStopStatusType
 
 try:
     import websockets
@@ -44,6 +44,20 @@ class ChargePoint(cp):
           id_token_info={"status": AuthorizationStatusType.accepted}
         )
 
+    @on(Action.RequestStartTransaction)
+    def on_request_start_transaction(self, id_token, remote_start_id):
+        print('Start Transaction Request')
+        return call_result.RequestStartTransactionPayload(
+          status=RequestStartStopStatusType.accepted,
+          transaction_id='0000001'
+        )
+
+    @on(Action.RequestStopTransaction)
+    def on_request_stop_transaction(self, transaction_id):
+        print('Start Transaction Request')
+        return call_result.RequestStopTransactionPayload(
+          status=RequestStartStopStatusType.accepted
+        )
 
 async def on_connect(websocket, path):
     """ For every new charge point that connects, create a ChargePoint
