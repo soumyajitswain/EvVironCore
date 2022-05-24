@@ -6,22 +6,28 @@ import websockets
 # Create a handler for app message
 
 async def handler(websocket, path):
-    data = await websocket.recv()
+    while True:
+        try:
+            data = await websocket.recv()
+        except websocket.ConnectionClosed:
+            print(f"Terminated")
+            break
 
-    logger.info(data)
+        logger.info(data)
     
-    print(data)
+        print(data)
 
-    reply = 'Data received';
+        reply = 'Data received';
 
-    await websocket.send(reply)
+        await websocket.send(reply)
+        print(f"> {reply}")
 
 async def main():
     #  deepcode ignore BindToAllNetworkInterfaces: <Example Purposes>
     server = await websockets.serve(
         handler,
         '0.0.0.0',
-        8000
+        7000
     )
 
     logging.info("Server Started listening to new connections...")
