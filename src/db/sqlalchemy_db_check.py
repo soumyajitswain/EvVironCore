@@ -1,7 +1,9 @@
 from cmath import phase
 from email.headerregistry import Address
 from lib2to3.pytree import Base
+from requests import Session, session
 import sqlalchemy 
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 engine = sqlalchemy.create_engine("mariadb+mariadbconnector://root:root@127.0.0.1:3306/environ")
@@ -18,6 +20,7 @@ class User(Base):
     phone = sqlalchemy.Column(sqlalchemy.String(length=10))
     email = sqlalchemy.Column(sqlalchemy.String(length=50))
     note = sqlalchemy.Column(sqlalchemy.TEXT) 
+    
 
 class Address(Base):
     __tablename__ = 'address'
@@ -192,3 +195,11 @@ class TransactionStopFail(Base):
 print(engine)
 
 Base.metadata.create_all(engine)
+
+Session = sessionmaker(bind=engine)
+
+session = Session()
+
+def _session(self):
+    print('Session created')
+    return session

@@ -2,6 +2,7 @@ import asyncio
 from asyncio.log import logger
 import logging
 import websockets
+from operations.processinghub import HubInitializer as hi
 
 # Create a handler for app message
 
@@ -14,10 +15,10 @@ async def handler(websocket, path):
             break
 
         logger.info(data)
-    
+        
         print(data)
 
-        reply = 'Data received';
+        reply = hi.serialize(data)
 
         await websocket.send(reply)
         print(f"> {reply}")
