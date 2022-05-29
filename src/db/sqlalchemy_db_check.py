@@ -10,7 +10,7 @@ engine = sqlalchemy.create_engine("mariadb+mariadbconnector://root:root@127.0.0.
 
 Base = declarative_base()
 
-class User(Base):
+class Users(Base):
     __tablename__ = 'user'
     user_id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     first_name = sqlalchemy.Column(sqlalchemy.String(length=100))
