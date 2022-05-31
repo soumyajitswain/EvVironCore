@@ -1,7 +1,8 @@
 import json
 from time import time
+from winreg import QueryInfoKey
 import sqlalchemy
-from db.sqlalchemy_db_check import Chargebox, Connector, ConnectorStatus, TransactionStart, TransactionStop, TransactionStopFail, Users as user
+from db.sqlalchemy_db_check import Chargebox, ChargingProfile, Connector, ConnectorChargingProfile, ConnectorMeterValue, ConnectorStatus, TransactionStart, TransactionStop, TransactionStopFail, Users as user
 from sqlalchemy.orm import sessionmaker, Session
 
 engine = sqlalchemy.create_engine("mariadb+mariadbconnector://root:root@127.0.0.1:3306/environ")
@@ -36,6 +37,13 @@ class ChargeBoxFunc:
 
         return result
 
+    def get_connector_status(self, connector_id):
+        session = Session()
+        query = session.query(ConnectorStatus).filter(ConnectorStatus.connector_pk == connector_id)
+        _result = json.dumps([dict(r) for r in query.all])
+        return _result
+
+
 class TransactionManager:
     def start_transaction(self, connector_id, id_tag):
         session = Session()
@@ -65,5 +73,23 @@ class TransactionManager:
               event_actor = 1, fail_reason = fail_reason)
         session.add(ts)
         session.commit()
+
+class ClassChargingMeasurement:
+    def get_connector_value(self, connector_id):
+        session = Session()
+        query = session.query(ConnectorMeterValue).filter(ConnectorMeterValue.connector_pk == connector_id)
+        _res = query.all()
+        _result = json.dumps([dict(r) for r in _res])
+        return _result
+
+    def get_charging_profile(self, connector_id):
+        session = Session()
+        query = session.query(ConnectorChargingProfile, ChargingProfile).join(ConnectorChargingProfile, ConnectorChargingProfile.charging_profile_pk == ChargingProfile.charging_profile_pk)\
+                .filter(ConnectorChargingProfile.connector_pk == connector_id)
+        _res = query.all
+        _result = json.dumps([dict(r) for r in _res])
+        return _result               
+        
+
 
                     
