@@ -2,7 +2,7 @@ import asyncio
 from asyncio.log import logger
 import logging
 import websockets
-from src.operations.processinghub import HubInitializer as hi
+from operations.processinghub import HubInitializer as hi
 
 # Create a handler for app message
 
