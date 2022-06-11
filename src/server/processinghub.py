@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 import json
 
-from db.sqlalchemy_db_check import User
-from db.db_fun import UserDbFunc as userdbfun
+from sqlalchemy_db_check import Users
+from db_fun import UserDbFunc as userdbfun
 
 
 class HubInitializer(ABC):
