@@ -6,6 +6,8 @@ from db_fun import UserDbFunc as userdbfun
 
 
 class HubInitializer(ABC):
+    def __init__(self, data):
+        self.data = data
 
     @abstractmethod
     def operation(self, _d):
@@ -24,10 +26,12 @@ class HubInitializer(ABC):
 
 class Authorize(HubInitializer):
     def operation(self, _d):
-        _user_id = _d.user_id
+        print('Authorize operation')
+        _user_id = _d['user_id']
+        print(_user_id)
         user = userdbfun._get_user_by_id(_user_id)
         _result = user
-        print('Authorize operation')
+        print('Result sent')
         return _result
 
 class ChargeStation(HubInitializer):

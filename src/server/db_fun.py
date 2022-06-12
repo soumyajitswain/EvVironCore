@@ -1,22 +1,35 @@
 import json
 from time import time
 from winreg import QueryInfoKey
+from click import echo
 import sqlalchemy
-from sqlalchemy_db_check import Chargebox, ChargingProfile, Connector, ConnectorChargingProfile, ConnectorMeterValue, ConnectorStatus, TransactionStart, TransactionStop, TransactionStopFail, Users as user
+from sqlalchemy_db_check import Chargebox, ChargingProfile, Connector, ConnectorChargingProfile, ConnectorMeterValue, ConnectorStatus, TransactionStart, TransactionStop, TransactionStopFail, Users
 from sqlalchemy.orm import sessionmaker, Session
 
-engine = sqlalchemy.create_engine("mariadb+mariadbconnector://root:root@127.0.0.1:3306/environ")
+
+engine = sqlalchemy.create_engine("mariadb+mariadbconnector://root:root@127.0.0.1:3306/environ", echo=True)
 
 Session = sessionmaker(bind=engine)
 
 session = Session()
 
 class UserDbFunc:
-    def _get_user_by_id(self, _user_id):
+    def __init__(self, _user_id):
+        self._user_id = _user_id
+
+    def _get_user_by_id(_user_id):
         session = Session()
-        query = session.query(user).filter(user.user_id == _user_id)
-        user = query.get(0)
-        return user
+        query = session.query(Users).filter(Users.user_id == _user_id)
+        print(query)
+        res = query.all()
+        print(res.__len__)
+        _result = ''
+        for r in res:
+           print(r.user_id)
+           _result = str(r.user_id)
+        #_result = json.dumps([(dict(str(r.user_id))) for r in res])
+        print(_result)
+        return _result
 
 class ChargeBoxFunc:
     def get_all_charge_box(self):

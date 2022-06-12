@@ -1,8 +1,11 @@
 import asyncio
 from asyncio.log import logger
+import importlib
+import json
 import logging
+import traceback
 import websockets
-from processinghub import HubInitializer as hi
+from processinghub import HubInitializer as HubInitializer
 
 # Create a handler for app message
 
@@ -18,7 +21,22 @@ async def handler(websocket, path):
         
         print(data)
 
-        reply = hi.serialize(data)
+        reply = 'ok'
+        try:
+
+            d = json.loads(str(data))
+            
+            print(d['action'])
+
+            subClass = getattr(importlib.import_module("processinghub"), d['action'])
+
+            hi = subClass(d)
+            reply = hi.operation(d)
+
+        except Exception:
+            print('error processing the request')
+            traceback.print_exc()
+            reply='error'
 
         await websocket.send(reply)
         print(f"> {reply}")
