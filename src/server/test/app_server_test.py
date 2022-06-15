@@ -1,6 +1,6 @@
 import asyncio
 import websockets
-# '{"action":"Authorize", "user_id":"1234"}'
+# {"action":"Authorize", "user_id":"1234"}
 async def hello():
     async with websockets.connect('ws://localhost:7000') as websocket:
         while True:

@@ -6,10 +6,22 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
+def iterable(cls):
+    def iterfn(self):
+        iters = dict((x,y) for x,y in cls.__dict__.items() if x[:2] != '__')
+        iters.update(self.__dict__)
+
+        for x,y in iters.items():
+            yield x,y
+
+    cls.__iter__ = iterfn
+    return cls
+
 engine = sqlalchemy.create_engine("mariadb+mariadbconnector://root:root@127.0.0.1:3306/environ")
 
 Base = declarative_base()
 
+@iterable
 class Users(Base):
 
     def __init__(self):
@@ -23,7 +35,12 @@ class Users(Base):
     sex = sqlalchemy.Column(sqlalchemy.CHAR)
     phone = sqlalchemy.Column(sqlalchemy.String(length=10))
     email = sqlalchemy.Column(sqlalchemy.String(length=50))
-    note = sqlalchemy.Column(sqlalchemy.TEXT) 
+    note = sqlalchemy.Column(sqlalchemy.TEXT)
+
+    def __str__(self):
+        return "Users: user_id %s, first_name %s, last_name %s, birth_day %s" %(self.user_id,
+        self.first_name, self.last_name, self.birth_day)
+         
     
 
 class Address(Base):

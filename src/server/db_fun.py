@@ -1,7 +1,9 @@
+from ast import stmt
 import json
 from time import time
 from winreg import QueryInfoKey
 from click import echo
+import jsons
 import sqlalchemy
 from sqlalchemy_db_check import Chargebox, ChargingProfile, Connector, ConnectorChargingProfile, ConnectorMeterValue, ConnectorStatus, TransactionStart, TransactionStop, TransactionStopFail, Users
 from sqlalchemy.orm import sessionmaker, Session
@@ -19,15 +21,20 @@ class UserDbFunc:
 
     def _get_user_by_id(_user_id):
         session = Session()
-        query = session.query(Users).filter(Users.user_id == _user_id)
-        print(query)
-        res = query.all()
-        print(res.__len__)
+        stmt = sqlalchemy.select(Users).where(Users.user_id == _user_id)
+
+        print(stmt)
+        res = session.execute(stmt)
         _result = ''
-        for r in res:
-           print(r.user_id)
-           _result = str(r.user_id)
-        #_result = json.dumps([(dict(str(r.user_id))) for r in res])
+
+        for r in res.scalars():
+           print(str(r))
+           user = r.__dict__
+           user.pop('_sa_instance_state')
+           print(user)
+           _result = json.dumps(user)
+
+
         print(_result)
         return _result
 
