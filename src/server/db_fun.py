@@ -1,4 +1,6 @@
 from ast import stmt
+from datetime import datetime
+from decimal import Decimal
 import json
 from time import time
 from winreg import QueryInfoKey
@@ -7,6 +9,7 @@ import jsons
 import sqlalchemy
 from sqlalchemy_db_check import Chargebox, ChargingProfile, Connector, ConnectorChargingProfile, ConnectorMeterValue, ConnectorStatus, TransactionStart, TransactionStop, TransactionStopFail, Users
 from sqlalchemy.orm import sessionmaker, Session
+ 
 
 
 engine = sqlalchemy.create_engine("mariadb+mariadbconnector://root:root@127.0.0.1:3306/environ", echo=True)
@@ -14,6 +17,15 @@ engine = sqlalchemy.create_engine("mariadb+mariadbconnector://root:root@127.0.0.
 Session = sessionmaker(bind=engine)
 
 session = Session()
+
+class CustomJsonEncoder(json.JSONEncoder):
+    
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super(CustomJsonEncoder, self).default(obj)
 
 class UserDbFunc:
     def __init__(self, _user_id):
@@ -39,11 +51,19 @@ class UserDbFunc:
         return _result
 
 class ChargeBoxFunc:
-    def get_all_charge_box(self):
+    def get_all_charge_box():
         session = Session()
-        query = session.query(Chargebox).filter(ChargeBoxFunc.fw_update_status == 'N')
-        res = query.all
-        _result = json.dumps([dict(r) for r in res])
+        stmt = sqlalchemy.select(Chargebox).where(Chargebox.fw_update_status == 'Y')
+        res = session.execute(stmt)
+        list = []
+        for row in res.scalars():
+            r = row.__dict__
+            #print(r)
+            r.pop('_sa_instance_state')
+            list.append(r)
+        
+        _result = json.dumps([dict(t) for t in list], cls=CustomJsonEncoder)
+        print(_result)
         return _result
 
     def get_charge_connector_detail_by_id(self, charge_box_id):

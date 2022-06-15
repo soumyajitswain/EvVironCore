@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import json
 
 from sqlalchemy_db_check import Users
-from db_fun import UserDbFunc as userdbfun
+from db_fun import UserDbFunc as userdbfun, ChargeBoxFunc
 
 
 class HubInitializer(ABC):
@@ -36,11 +36,11 @@ class Authorize(HubInitializer):
 
 class ChargeStation(HubInitializer):
     def operation(self, _d):
-        _user_id = _d.user_id
-        if _d.action == 'get_all':
-            charge_station_all = userdbfun._get_user_by_id(_user_id)
+        _user_id = _d['user_id']
+        if _d['func'] == 'GetAllChargeStations':
+            charge_station_all = ChargeBoxFunc.get_all_charge_box()
             _result = charge_station_all
-        print('Get all Charge station detail')
+            print('Get all Charge station detail')
         return _result
 
 class StartTransaction(HubInitializer):
