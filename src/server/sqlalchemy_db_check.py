@@ -42,7 +42,7 @@ class Users(Base):
         self.first_name, self.last_name, self.birth_day)
          
     
-
+@iterable
 class Address(Base):
     __tablename__ = 'address'
     address_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -52,6 +52,7 @@ class Address(Base):
     city = sqlalchemy.Column(sqlalchemy.CHAR)
     country = sqlalchemy.Column(sqlalchemy.String(length=10))
 
+@iterable
 class Chargebox(Base):
     __tablename__ = 'charge_box'
     charge_box_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -79,7 +80,7 @@ class Chargebox(Base):
     admin_address = sqlalchemy.Column(sqlalchemy.String(length=255))
     insert_connector_status = sqlalchemy.Column(sqlalchemy.INT)
     
-
+@iterable
 class ChargingProfile(Base):
     __tablename__ = 'charging_profile'
     charging_profile_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -96,6 +97,7 @@ class ChargingProfile(Base):
     description = sqlalchemy.Column(sqlalchemy.String(length=255))
     note = sqlalchemy.Column(sqlalchemy.TEXT)
 
+@iterable
 class ChargingSchedulePeriod(Base):
     __tablename__ = 'charging_schedule_period'
     charging_profile_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -103,18 +105,20 @@ class ChargingSchedulePeriod(Base):
     power_limit = sqlalchemy.Column(sqlalchemy.DECIMAL)
     number_phases = sqlalchemy.Column(sqlalchemy.INT)
 
+@iterable
 class Connector(Base):
     __tablename__ = 'connector'
     connector_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     charge_box_id = sqlalchemy.Column(sqlalchemy.INT)
     connector_id = sqlalchemy.Column(sqlalchemy.DECIMAL)
 
-
+@iterable
 class ConnectorChargingProfile(Base):
     __tablename__ = 'connector_charging_profile'
     connector_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     charging_profile_pk = sqlalchemy.Column(sqlalchemy.INT)
 
+@iterable
 class ConnectorMeterValue(Base):
     __tablename__ = 'connector_mater_value'
     connector_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -128,6 +132,7 @@ class ConnectorMeterValue(Base):
     unit = sqlalchemy.Column(sqlalchemy.String(length=255))
     phase = sqlalchemy.Column(sqlalchemy.String(length=100))
 
+@iterable
 class ConnectorStatus(Base):
     __tablename__ = 'connector_status'
     connector_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -138,6 +143,7 @@ class ConnectorStatus(Base):
     vendor_id = sqlalchemy.Column(sqlalchemy.String(length=100))
     vendor_error_code = sqlalchemy.Column(sqlalchemy.String(length=10))
 
+@iterable
 class OcppTag(Base):
     __tablename__ = 'ocpp_tag'
     ocpp_tag_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -147,6 +153,7 @@ class OcppTag(Base):
     max_active_transaction_count = sqlalchemy.Column(sqlalchemy.INT)
     note = sqlalchemy.Column(sqlalchemy.TEXT)
 
+@iterable
 class Reservation(Base):
     __tablename__ = 'reservation'
     reservation_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -157,6 +164,7 @@ class Reservation(Base):
     expiry_datetime = sqlalchemy.Column(sqlalchemy.DATETIME)
     status = sqlalchemy.Column(sqlalchemy.String(length=255))
 
+@iterable
 class SchemaVersion(Base):
     __tablename__ = 'schema_version'
     installed_rank = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -170,6 +178,7 @@ class SchemaVersion(Base):
     execution_time = sqlalchemy.Column(sqlalchemy.DATETIME)
     sucess = sqlalchemy.Column(sqlalchemy.String(length=255))
 
+@iterable
 class Settings(Base):
     __tablename__ = 'settings'
     app_id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -185,6 +194,7 @@ class Settings(Base):
     mail_receipients = sqlalchemy.Column(sqlalchemy.DATETIME)
     notification_features = sqlalchemy.Column(sqlalchemy.String(length=255))
 
+@iterable
 class TransactionStart(Base):
     __tablename__ = 'transaction_start'
     transaction_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -194,6 +204,7 @@ class TransactionStart(Base):
     start_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
     start_value = sqlalchemy.Column(sqlalchemy.String(length=255))
 
+@iterable
 class TransactionStop(Base):
     __tablename__ = 'transaction_stop'
     transaction_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -203,6 +214,7 @@ class TransactionStop(Base):
     stop_value = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
     stop_reason = sqlalchemy.Column(sqlalchemy.String(length=255))
 
+@iterable
 class TransactionStopFail(Base):
     __tablename__ = 'transaction_stop_failed'
     transaction_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
