@@ -69,14 +69,29 @@ class ChargeBoxFunc:
         print(_result)
         return _result
 
-    def get_charge_connector_detail_by_id(self, charge_box_id):
+    def get_charge_connector_detail_by_id(charge_box_id):
         session = Session()
         join_query = session.query(Chargebox, Connector, ConnectorStatus )\
             .join(Connector, Connector.charge_box_id == Chargebox.charge_box_id)\
             .join(ConnectorStatus, ConnectorStatus.connector_pk == Connector.connector_pk)\
-            .filter(Chargebox.charge_box_id == charge_box_id)
-        
-        result = json.dumps([dict(r) for r in join_query])
+            .filter(Chargebox.charge_box_id == charge_box_id).all()
+        list = []
+        for chargebox, connector, connector_status in join_query:
+            r = str(chargebox.charge_box_pk)
+            rowl = []
+            cb = chargebox.__dict__
+            cb.pop('_sa_instance_state')
+            con = connector.__dict__
+            con.pop('_sa_instance_state')
+            cos = connector_status.__dict__
+            cos.pop('_sa_instance_state')
+            rowl.append(cb)
+            rowl.append(con)
+            rowl.append(cos)
+            print(rowl)
+            list.append(rowl)
+
+        result = json.dumps(list, cls=CustomJsonEncoder)
 
         return result
 

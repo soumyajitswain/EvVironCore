@@ -38,9 +38,11 @@ class ChargeStation(HubInitializer):
     def operation(self, _d):
         _user_id = _d['user_id']
         if _d['func'] == 'GetAllChargeStations':
-            charge_station_all = ChargeBoxFunc.get_all_charge_box()
-            _result = charge_station_all
+            _result = ChargeBoxFunc.get_all_charge_box()
             print('Get all Charge station detail')
+        elif  _d['func'] == 'ConnectorDetailByChargeBox':
+            charge_box_id = _d['charge_box_id']
+            _result = ChargeBoxFunc.get_charge_connector_detail_by_id(charge_box_id)
         return _result
 
 class StartTransaction(HubInitializer):

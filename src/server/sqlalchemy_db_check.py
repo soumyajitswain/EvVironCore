@@ -79,6 +79,10 @@ class Chargebox(Base):
     location_longitude = sqlalchemy.Column(sqlalchemy.DECIMAL)
     admin_address = sqlalchemy.Column(sqlalchemy.String(length=255))
     insert_connector_status = sqlalchemy.Column(sqlalchemy.INT)
+
+    def __repr__(self):
+            return "<Chargebox(charge_box_pk='%s', charge_box_id='%s', endpoint_address='%s')>" % (
+                                self.charge_box_pk, self.charge_box_id, self.endpoint_address)
     
 @iterable
 class ChargingProfile(Base):
@@ -97,6 +101,11 @@ class ChargingProfile(Base):
     description = sqlalchemy.Column(sqlalchemy.String(length=255))
     note = sqlalchemy.Column(sqlalchemy.TEXT)
 
+    def __repr__(self):
+            return "<ChargingProfile(charging_profile_pk='%s', stack_level='%s', charging_profile_purpose='%s')>" % (
+                                self.charging_profile_pk, self.stack_level, self.charging_profile_purpose)
+
+
 @iterable
 class ChargingSchedulePeriod(Base):
     __tablename__ = 'charging_schedule_period'
@@ -112,12 +121,19 @@ class Connector(Base):
     charge_box_id = sqlalchemy.Column(sqlalchemy.INT)
     connector_id = sqlalchemy.Column(sqlalchemy.DECIMAL)
 
+    def __repr__(self):
+            return "<Connector(connector_pk='%s', charge_box_id='%s', connector_id='%s')>" % (
+                                self.connector_pk, self.charge_box_id, self.connector_id)
+
 @iterable
 class ConnectorChargingProfile(Base):
     __tablename__ = 'connector_charging_profile'
     connector_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     charging_profile_pk = sqlalchemy.Column(sqlalchemy.INT)
 
+    def __repr__(self):
+            return "<ConnectorChargingProfile(connector_pk='%s', charging_profile_pk='%s')>" % (
+                                self.connector_pk, self.charging_profile_pk)
 @iterable
 class ConnectorMeterValue(Base):
     __tablename__ = 'connector_mater_value'
@@ -142,6 +158,10 @@ class ConnectorStatus(Base):
     error_info = sqlalchemy.Column(sqlalchemy.String(length=100))
     vendor_id = sqlalchemy.Column(sqlalchemy.String(length=100))
     vendor_error_code = sqlalchemy.Column(sqlalchemy.String(length=10))
+
+    def __repr__(self):
+            return "<ConnectorStatus(connector_pk='%s', status_timestamp='%s')>" % (
+                                self.connector_pk, self.status_timestamp)
 
 @iterable
 class OcppTag(Base):
