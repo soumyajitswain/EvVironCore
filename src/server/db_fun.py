@@ -1,11 +1,10 @@
 from ast import stmt
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 import json
-from time import time
+from time import mktime, struct_time, time
 from winreg import QueryInfoKey
 from click import echo
-import jsons
 import sqlalchemy
 from sqlalchemy_db_check import Chargebox, ChargingProfile, Connector, ConnectorChargingProfile, ConnectorMeterValue, ConnectorStatus, TransactionStart, TransactionStop, TransactionStopFail, Users
 from sqlalchemy.orm import sessionmaker, Session
@@ -25,6 +24,10 @@ class CustomJsonEncoder(json.JSONEncoder):
             return float(obj)
         if isinstance(obj, datetime):
             return obj.isoformat()
+        if isinstance(obj, date):
+                return str(obj)
+        if isinstance(obj, struct_time):
+                return datetime.fromtimestamp(mktime(obj))
         return super(CustomJsonEncoder, self).default(obj)
 
 class UserDbFunc:
