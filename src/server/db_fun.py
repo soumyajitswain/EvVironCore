@@ -120,9 +120,30 @@ class TransactionManager:
         session = Session()
         query = session.query(TransactionStart, TransactionStop, TransactionStopFail)\
             .join(TransactionStop, TransactionStart.transaction_pk == TransactionStop.transaction_pk)\
-            .join(TransactionStopFail, TransactionStopFail.transaction_pk == TransactionStart.transaction_pk)
-        res = query.all
-        _result = json.dumps([dict(r) for r in res])
+            .join(TransactionStopFail, TransactionStopFail.transaction_pk == TransactionStart.transaction_pk)\
+            .filter(TransactionStart.transaction_pk == transaction_id).all()    
+        res = ''
+        for ts in query:
+            _ts1 = ts.__dict__
+            _ts1.pop('_sa_instance_state')
+            _res = _ts1
+        _res = json.dumps(_res)
+        return _res    
+
+    def get_transaction_by_connector_id(self, connector_id):
+        session = Session()
+        query = session.query(TransactionStart, TransactionStop, TransactionStopFail)\
+            .join(TransactionStop, TransactionStart.transaction_pk == TransactionStop.transaction_pk)\
+            .join(TransactionStopFail, TransactionStopFail.transaction_pk == TransactionStart.transaction_pk)\
+            .filter(TransactionStart.connector_pk == connector_id).all()
+        _res = '';    
+        for ts in query:
+            _ts1 = ts.__dict__
+            _ts1.pop('_sa_instance_state')
+            _res = _ts1
+        _res = json.dumps(_res)
+        return _res    
+
 
     def stop_fail_transaction(self, transaction_pk, stop_value, stop_reason, fail_reason):
         session = Session()

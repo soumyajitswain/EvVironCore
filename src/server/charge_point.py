@@ -65,7 +65,7 @@ class ChargePoint(cp):
             #await self.send_heartbeat(response.interval)
             #await self.authorize_request()
             response = await self.request_start_transaction_request()
-            await self.request_stop_transaction_request(response.transaction_id)
+            await self.request_stopæ_transaction_request(response.transaction_id)
 
     async def request_start_transaction_request(self):
         try:
