@@ -2,8 +2,7 @@ from abc import ABC, abstractmethod
 import json
 
 from sqlalchemy_db_check import Users
-from db_fun import UserDbFunc as userdbfun, ChargeBoxFunc
-from src.server.db_fun import TransactionManager
+from db_fun import UserDbFunc as userdbfun, ChargeBoxFunc, TransactionManager
 
 
 class HubInitializer(ABC):
