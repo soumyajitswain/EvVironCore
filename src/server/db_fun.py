@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker, Session
  
 
 
-engine = sqlalchemy.create_engine("mariadb+mariadbconnector://root:root@127.0.0.1:3306/environ", echo=True)
+engine = sqlalchemy.create_engine("mariadb+mariadbconnector://root:root@127.0.0.1:3306/environ", echo=True, pool_size=20, max_overflow=0)
 
 Session = sessionmaker(bind=engine)
 
