@@ -54,7 +54,7 @@ class UserDbFunc:
         return _result
 
 class ChargeBoxFunc:
-    def get_all_charge_box():
+    def get_all_charge_box(input):
         session = Session()
         stmt = sqlalchemy.select(Chargebox).where(Chargebox.fw_update_status == 'Y')
         res = session.execute(stmt)
@@ -65,16 +65,17 @@ class ChargeBoxFunc:
             r.pop('_sa_instance_state')
             list.append(r)
         
-        _result = json.dumps([dict(t) for t in list], cls=CustomJsonEncoder)
+        x = {'action':input['action'], 'func':input['func'], 'val':list} 
+        _result = json.dumps(x, cls=CustomJsonEncoder)
         print(_result)
         return _result
 
-    def get_charge_connector_detail_by_id(charge_box_id):
+    def get_charge_connector_detail_by_id(input):
         session = Session()
         join_query = session.query(Chargebox, Connector, ConnectorStatus )\
             .join(Connector, Connector.charge_box_id == Chargebox.charge_box_id)\
             .join(ConnectorStatus, ConnectorStatus.connector_pk == Connector.connector_pk)\
-            .filter(Chargebox.charge_box_id == charge_box_id).all()
+            .filter(Chargebox.charge_box_id == input['charge_box_id']).all()
         list = []
         for chargebox, connector, connector_status in join_query:
             r = str(chargebox.charge_box_pk)
@@ -91,7 +92,8 @@ class ChargeBoxFunc:
             print(rowl)
             list.append(rowl)
 
-        result = json.dumps(list, cls=CustomJsonEncoder)
+        x = {'action':input['action'], 'func':input['func'], 'val':list}
+        result = json.dumps(x, cls=CustomJsonEncoder)
 
         return result
 
