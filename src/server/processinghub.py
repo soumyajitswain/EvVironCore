@@ -29,7 +29,7 @@ class Authorize(HubInitializer):
         print('Authorize operation')
         _user_id = _d['user_id']
         print(_user_id)
-        user = userdbfun._get_user_by_id(_user_id)
+        user = userdbfun._get_user_by_id(_user_id, _d)
         _result = user
         print('Result sent')
         return _result

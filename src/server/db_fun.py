@@ -34,12 +34,14 @@ class UserDbFunc:
     def __init__(self, _user_id):
         self._user_id = _user_id
 
-    def _get_user_by_id(_user_id):
+    def _get_user_by_id(_user_id, input):
         session = Session()
         stmt = sqlalchemy.select(Users).where(Users.user_id == _user_id)
 
         print(stmt)
         res = session.execute(stmt)
+
+        user = ''
         _result = ''
 
         for r in res.scalars():
@@ -47,8 +49,9 @@ class UserDbFunc:
            user = r.__dict__
            user.pop('_sa_instance_state')
            print(user)
-           _result = json.dumps(user)
 
+        x = {'action':input['action'], 'val':[user]}           
+        _result = json.dumps(x)
 
         print(_result)
         return _result
