@@ -135,12 +135,12 @@ class TransactionManager:
         _res = json.dumps(_res)
         return _res    
 
-    def get_transaction_by_connector_id(self, connector_id):
+    def get_transaction_by_connector_id(connector_pk):
         session = Session()
         query = session.query(TransactionStart, TransactionStop, TransactionStopFail)\
             .join(TransactionStop, TransactionStart.transaction_pk == TransactionStop.transaction_pk)\
             .join(TransactionStopFail, TransactionStopFail.transaction_pk == TransactionStart.transaction_pk)\
-            .filter(TransactionStart.connector_pk == connector_id).all()
+            .filter(TransactionStart.connector_pk == connector_pk).all()
         _res = '';    
         for ts in query:
             _ts1 = ts.__dict__
