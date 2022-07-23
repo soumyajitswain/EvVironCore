@@ -3,6 +3,7 @@ import websockets
 # {"action":"Authorize", "user_id":"1234"}
 # ChargeStation {"action":"ChargeStation", "user_id":"1234", "func":"GetAllChargeStations"}
 # ChargeStation Connectors {"action":"ChargeStation", "user_id":"1234", "func":"ConnectorDetailByChargeBox", "charge_box_id":"1"}
+# StartTransaction ChargeStation Connectors {"action":"StartTransaction", "user_id":"1234", "func":"start_transaction", "charge_box_id":"1"}
 async def hello():
     async with websockets.connect('ws://localhost:7000') as websocket:
         while True:
