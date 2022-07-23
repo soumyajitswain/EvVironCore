@@ -3,6 +3,7 @@ from datetime import date, datetime
 from decimal import Decimal
 import json
 from time import mktime, struct_time, time
+from unittest import result
 from winreg import QueryInfoKey
 from click import echo
 import sqlalchemy
@@ -121,33 +122,55 @@ class TransactionManager:
         session.add(ts)
         session.commit()
 
-    def get_transaction(self, transaction_id):
+    def get_transaction(input):
         session = Session()
         query = session.query(TransactionStart, TransactionStop, TransactionStopFail)\
             .join(TransactionStop, TransactionStart.transaction_pk == TransactionStop.transaction_pk)\
             .join(TransactionStopFail, TransactionStopFail.transaction_pk == TransactionStart.transaction_pk)\
-            .filter(TransactionStart.transaction_pk == transaction_id).all()    
-        res = ''
-        for ts in query:
-            _ts1 = ts.__dict__
+            .filter(TransactionStart.transaction_pk == input['transaction_id']).all()    
+        _list = []     
+        for transactionStart, transactionStop, transactionStopFail in query:
+            _ts1 = transactionStart.__dict__
             _ts1.pop('_sa_instance_state')
-            _res = _ts1
-        _res = json.dumps(_res)
-        return _res    
+            _list.append(_ts1)
 
-    def get_transaction_by_connector_id(connector_pk):
+            _ts2 = transactionStop.__dict__
+            _ts2.pop('_sa_instance_state')
+            _list.append(_ts2)
+
+            _ts3 = transactionStopFail.__dict__
+            _ts3.pop('_sa_instance_state')
+            _list.append(_ts3)
+
+        x = {'action':input['action'], 'func':input['func'], 'val':_list}    
+        result = json.dumps(x, cls=CustomJsonEncoder)
+        return result    
+
+    def get_transaction_by_connector_id(input):
         session = Session()
         query = session.query(TransactionStart, TransactionStop, TransactionStopFail)\
             .join(TransactionStop, TransactionStart.transaction_pk == TransactionStop.transaction_pk)\
             .join(TransactionStopFail, TransactionStopFail.transaction_pk == TransactionStart.transaction_pk)\
-            .filter(TransactionStart.connector_pk == connector_pk).all()
-        _res = '';    
-        for ts in query:
-            _ts1 = ts.__dict__
+            .filter(TransactionStart.connector_pk == input['connector_pk']).all()
+
+        _list = []     
+        for transactionStart, transactionStop, transactionStopFail in query:
+            _ts1 = transactionStart.__dict__
             _ts1.pop('_sa_instance_state')
-            _res = _ts1
-        _res = json.dumps(_res)
-        return _res    
+            _list.append(_ts1)
+
+            _ts2 = transactionStop.__dict__
+            _ts2.pop('_sa_instance_state')
+            _list.append(_ts2)
+
+            _ts3 = transactionStopFail.__dict__
+            _ts3.pop('_sa_instance_state')
+            _list.append(_ts3)
+            
+
+        x = {'action':input['action'], 'func':input['func'], 'val':_list}    
+        result = json.dumps(x, cls=CustomJsonEncoder)   
+        return result    
 
 
     def stop_fail_transaction(self, transaction_pk, stop_value, stop_reason, fail_reason):

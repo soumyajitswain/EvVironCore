@@ -50,9 +50,9 @@ class StartTransaction(HubInitializer):
         _user_id = _d['user_id']
         _result = ''
         if _d['func'] == 'start_transaction':
-            charge_box_id = _d['charge_box_id']
-            connector_pk = _d['connector_pk']
-            _result = TransactionManager.get_transaction_by_connector_id(connector_pk)
+            #charge_box_id = _d['charge_box_id']
+            #connector_pk = _d['connector_pk']
+            _result = TransactionManager.get_transaction_by_connector_id(_d)
         elif _d['func'] == 'transaction_status':
             transaction_id = _d['transaction_id']
             _result = TransactionManager.get_transaction(transaction_id)
