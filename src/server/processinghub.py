@@ -55,7 +55,7 @@ class StartTransaction(HubInitializer):
             _result = TransactionManager.get_transaction_by_connector_id(_d)
         elif _d['func'] == 'transaction_status':
             transaction_id = _d['transaction_id']
-            _result = TransactionManager.get_transaction(transaction_id)
+            _result = TransactionManager.get_transaction(_d)
 
         return _result      
 
