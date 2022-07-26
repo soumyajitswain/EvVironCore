@@ -54,7 +54,7 @@ class ChargePoint(cp):
 
     @on(Action.RequestStopTransaction)
     def on_request_stop_transaction(self, transaction_id):
-        print('Start Transaction Request')
+        print('Stop Transaction Request')
         return call_result.RequestStopTransactionPayload(
           status=RequestStartStopStatusType.accepted
         )

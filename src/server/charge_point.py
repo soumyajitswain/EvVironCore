@@ -65,13 +65,15 @@ class ChargePoint(cp):
             #await self.send_heartbeat(response.interval)
             #await self.authorize_request()
             response = await self.request_start_transaction_request()
-            await self.request_stopæ_transaction_request(response.transaction_id)
+            print(response.transaction_id);
+            transaction_id = response.transaction_id;
+            await self.request_stop_transaction_request(transaction_id);
 
     async def request_start_transaction_request(self):
         try:
             request = call.RequestStartTransactionPayload(
                 id_token={
-                 'id_token':'dcdcsadcsd',
+                 'id_token':'1234mee',
                   'type':'ISO14443'
                 },
                 remote_start_id=1233
@@ -89,8 +91,9 @@ class ChargePoint(cp):
                 )
 
             response = await self.call(request)
-        except KeyError:
-            print('Exception')      
+        except KeyError as e:
+            print('Exception in stop transaction')
+            print(e)      
 
 async def main():
     async with websockets.connect(
