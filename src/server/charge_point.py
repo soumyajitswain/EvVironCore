@@ -64,7 +64,7 @@ class ChargePoint(cp):
 
         if response.status == 'Accepted':
             print("Connected to central system.")
-            #await self.send_heartbeat(response.interval)
+            await self.send_heartbeat(response.interval)
             #await self.authorize_request()
             #response = await self.request_start_transaction_request()
             #transaction_id = response.transaction_id;

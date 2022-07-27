@@ -1,5 +1,7 @@
 from cmath import phase
+from datetime import datetime
 from email.headerregistry import Address
+from email.policy import default
 from lib2to3.pytree import Base
 from requests import Session, session
 import sqlalchemy 
@@ -182,8 +184,8 @@ class TransactionStop(Base):
     transaction_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     event_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
     event_actor = sqlalchemy.Column(sqlalchemy.Integer)
-    stop_timestamp = sqlalchemy.Column(sqlalchemy.String(length=255))
-    stop_value = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
+    stop_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
+    stop_value = sqlalchemy.Column(sqlalchemy.INT)
     stop_reason = sqlalchemy.Column(sqlalchemy.String(length=255))
 
 class TransactionStopFail(Base):
@@ -191,10 +193,22 @@ class TransactionStopFail(Base):
     transaction_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     event_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
     event_actor = sqlalchemy.Column(sqlalchemy.Integer)
-    stop_timestamp = sqlalchemy.Column(sqlalchemy.String(length=255))
-    stop_value = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
+    stop_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
+    stop_value = sqlalchemy.Column(sqlalchemy.INT)
     stop_reason = sqlalchemy.Column(sqlalchemy.String(length=255))
     fail_reason = sqlalchemy.Column(sqlalchemy.TEXT)
+
+class ChargeStationMessageQueue(Base):
+    __tablename__ = 'charge_station_message_queue'
+    message_id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
+    action = sqlalchemy.Column(sqlalchemy.String(length=50))
+    func = sqlalchemy.Column(sqlalchemy.String(length=50))
+    status = sqlalchemy.Column(sqlalchemy.CHAR(length=1))
+    created_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP, default=datetime.now)
+    transaction_id = sqlalchemy.Column(sqlalchemy.INT)
+    updated_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP, default=datetime.now)
+
+
 
 print(engine)
 
