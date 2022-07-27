@@ -1,4 +1,3 @@
-from ast import stmt
 from datetime import date, datetime
 from decimal import Decimal
 import json
@@ -7,8 +6,9 @@ from unittest import result
 from winreg import QueryInfoKey
 from click import echo
 import sqlalchemy
-from sqlalchemy_db_check import Chargebox, ChargingProfile, Connector, ConnectorChargingProfile, ConnectorMeterValue, ConnectorStatus, TransactionStart, TransactionStop, TransactionStopFail, Users
+from sqlalchemy_db_check import Chargebox, ChargingProfile, Connector, ConnectorChargingProfile, ConnectorMeterValue, ConnectorStatus, TransactionStart, TransactionStop, TransactionStopFail, Users, ChargeStationMessageQueue
 from sqlalchemy.orm import sessionmaker, Session
+
  
 
 
@@ -195,8 +195,36 @@ class ClassChargingMeasurement:
                 .filter(ConnectorChargingProfile.connector_pk == connector_id)
         _res = query.all
         _result = json.dumps([dict(r) for r in _res])
-        return _result               
-        
+        return _result
 
+class ChargeBoxMessageQueueManager:
+    def get_message(action, func):
+        session = Session()
+        query = session.query(ChargeStationMessageQueue)\
+                       .filter(sqlalchemy.and_(
+                        ChargeStationMessageQueue.action == action, 
+                        ChargeStationMessageQueue.func == func))
+        _res = query.all()
+        _list = []
+        for chargeStationMessageQueue in _res:
+            _list.append(chargeStationMessageQueue.__dict__)
+
+        return _list                           
+        
+    def save_message(action, func, transaction_id, status):
+        session = Session()
+        _msg = ChargeStationMessageQueue(action = action, func = func,
+                                status = status, transaction_id = transaction_id)
+        session.add(_msg)
+        session.commit()
+    
+    def update_message(message_id, status):
+        session = Session()
+        _msg = session.query(ChargeStationMessageQueue)\
+                            .filter(ChargeStationMessageQueue.message_id == message_id)\
+                            .update({ChargeStationMessageQueue.status: status})
+        session.commit()
+
+               
 
                     
