@@ -4,6 +4,7 @@ import logging
 from requests import request
 
 from ocpp.v201.datatypes import IdTokenType
+from sqlalchemy import null
 
 
 try:
@@ -23,8 +24,9 @@ from ocpp.v20 import ChargePoint as cp
 logging.basicConfig(level=logging.INFO)
 
 
-class ChargePoint(cp):
 
+class ChargePoint(cp):
+   
     async def send_heartbeat(self, interval):
         request = call.HeartbeatPayload()
         while True:
@@ -64,10 +66,9 @@ class ChargePoint(cp):
             print("Connected to central system.")
             #await self.send_heartbeat(response.interval)
             #await self.authorize_request()
-            response = await self.request_start_transaction_request()
-            print(response.transaction_id);
-            transaction_id = response.transaction_id;
-            await self.request_stop_transaction_request(transaction_id);
+            #response = await self.request_start_transaction_request()
+            #transaction_id = response.transaction_id;
+            #await self.request_stop_transaction_request(transaction_id);
 
     async def request_start_transaction_request(self):
         try:
@@ -95,16 +96,29 @@ class ChargePoint(cp):
             print('Exception in stop transaction')
             print(e)      
 
+charge_point = null;
 async def main():
     async with websockets.connect(
             'ws://localhost:9000/CP_1',
             subprotocols=['ocpp2.0.1']
     ) as ws:
 
+        global charge_point
         charge_point = ChargePoint('CP_1', ws)
         await asyncio.gather(charge_point.start(),
                              charge_point.send_boot_notification())
+    return charge_point
 
+async def main_remote(charge_point):
+    async with websockets.connect(
+            'ws://localhost:9000/CP_1',
+            subprotocols=['ocpp2.0.1']
+    ) as ws:
+
+        charge_point = ChargePoint('CP_1', ws)
+        asyncio.gather(charge_point.start(),
+                             charge_point.send_boot_notification())
+    return charge_point
 
 if __name__ == "__main__":
     # asyncio.run() is used when running this example with Python >= 3.7v
