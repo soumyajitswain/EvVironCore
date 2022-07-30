@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import json
 
 from sqlalchemy_db_check import Users
-from db_fun import UserDbFunc as userdbfun, ChargeBoxFunc, TransactionManager
+from db_fun import UserDbFunc as userdbfun, ChargeBoxFunc, TransactionManager, ChargeBoxMessageQueueManager
 
 
 class HubInitializer(ABC):
@@ -50,6 +50,10 @@ class StartTransaction(HubInitializer):
         _user_id = _d['user_id']
         _result = ''
         if _d['func'] == 'start_transaction':
+            try:
+                ChargeBoxMessageQueueManager.save_message(_d['action'], _d['func'], 2, 'N');
+            except Exception as e:
+                print(e)    
             _result = TransactionManager.get_transaction_by_connector_id(_d)
         elif _d['func'] == 'transaction_status':
             transaction_id = _d['transaction_id']
