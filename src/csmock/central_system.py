@@ -49,7 +49,7 @@ class ChargePoint(cp):
         print('Start Transaction Request')
         return call_result.RequestStartTransactionPayload(
           status=RequestStartStopStatusType.accepted,
-          transaction_id='0000001'
+          transaction_id=str(remote_start_id)
         )
 
     @on(Action.RequestStopTransaction)

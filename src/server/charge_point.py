@@ -1,5 +1,7 @@
 import asyncio
+import json
 import logging
+import random
 
 from requests import request
 
@@ -21,9 +23,19 @@ except ModuleNotFoundError:
 from ocpp.v20 import call
 from ocpp.v20 import ChargePoint as cp
 
+from db_fun import ChargeBoxMessageQueueManager as msgqueue
+
 logging.basicConfig(level=logging.INFO)
 
+class ChargePointDBHelper():
+    def get_all_message(self):
+       list = msgqueue.get_message(self, 'StartTransaction', 'start_transaction', 'N')
+       return list
 
+    def update_message(self, message_id, status):
+        msgqueue.update_message(self, message_id, status)   
+
+cp_db_helper = ChargePointDBHelper()
 
 class ChargePoint(cp):
    
@@ -31,6 +43,13 @@ class ChargePoint(cp):
         request = call.HeartbeatPayload()
         while True:
             await self.call(request)
+            try:
+                for l in cp_db_helper.get_all_message():
+                    response = await self.request_start_transaction_request(l['transaction_id'])
+                    #cp_db_helper.update_message(l['message_id'], 'Y')
+            except Exception as e:
+                print(e)    
+            
             await asyncio.sleep(interval)
 
     async def authorize_request(self):
@@ -70,20 +89,23 @@ class ChargePoint(cp):
             #transaction_id = response.transaction_id;
             #await self.request_stop_transaction_request(transaction_id);
 
-    async def request_start_transaction_request(self):
+    async def request_start_transaction_request(self, transaction_id):
         try:
+            chargingSchedulePeriod = [{'start_period':1, 'limit':10}]
+            chargingSchedule = json.dumps([{'id':1, 'chargingRateUnit':'A','chargingSchedulePeriod':chargingSchedulePeriod }])
+            charging_profile = {'id':2,'stackLevel': random.randint(0, 1000),'chargingSchedule':json.loads(chargingSchedule),'chargingProfilePurpose':'TxDefaultProfile', 'chargingProfileKind':'Absolute'}
             request = call.RequestStartTransactionPayload(
                 id_token={
                  'id_token':'1234mee',
                   'type':'ISO14443'
                 },
-                remote_start_id=1233
+                remote_start_id=2
                 )
 
             response = await self.call(request)
             return response
-        except KeyError:
-            print('Exception')      
+        except KeyError as e:
+            print('Exception', e)      
 
     async def request_stop_transaction_request(self, transactionId):
         try:

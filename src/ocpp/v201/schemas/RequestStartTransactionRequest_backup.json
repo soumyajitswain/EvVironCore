@@ -166,7 +166,8 @@
 		"id",
 		"stackLevel",
 		"chargingProfilePurpose",
-		"chargingProfileKind"
+		"chargingProfileKind",
+		"chargingSchedule"
 	  ]
 	},
 	"ChargingSchedulePeriodType": {
@@ -327,7 +328,6 @@
 		"type": {
 		  "$ref": "#/definitions/IdTokenEnumType"
 		}
-		
 	  },
 	  "required": [
 		"idToken",

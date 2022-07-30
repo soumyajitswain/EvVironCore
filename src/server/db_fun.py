@@ -115,6 +115,13 @@ class TransactionManager:
         session.add(ts)
         session.commit()
 
+    def update_transaction_status(self, transaction_id, start_value):
+        session = Session()
+        msg = session.query(TransactionStart)\
+                    .filter(TransactionStart.transaction_pk == transaction_id)\
+                    .update({TransactionStart.start_value : start_value})
+
+
     def stop_transaction(self, transaction_pk, stop_value, stop_reason):
         session = Session()
         ts = TransactionStop(transaction_pk = transaction_pk, \
@@ -198,12 +205,13 @@ class ClassChargingMeasurement:
         return _result
 
 class ChargeBoxMessageQueueManager:
-    def get_message(action, func):
+    def get_message(self, action, func, status):
         session = Session()
         query = session.query(ChargeStationMessageQueue)\
                        .filter(sqlalchemy.and_(
                         ChargeStationMessageQueue.action == action, 
-                        ChargeStationMessageQueue.func == func))
+                        ChargeStationMessageQueue.func == func, 
+                        ChargeStationMessageQueue.status == status))
         _res = query.all()
         _list = []
         for chargeStationMessageQueue in _res:
@@ -218,7 +226,7 @@ class ChargeBoxMessageQueueManager:
         session.add(_msg)
         session.commit()
     
-    def update_message(message_id, status):
+    def update_message(self, message_id, status):
         session = Session()
         _msg = session.query(ChargeStationMessageQueue)\
                             .filter(ChargeStationMessageQueue.message_id == message_id)\
