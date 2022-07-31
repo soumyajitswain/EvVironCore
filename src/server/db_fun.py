@@ -114,6 +114,8 @@ class TransactionManager:
         ts = TransactionStart(connector_pk = connector_id, id_tag = id_tag, start_timestamp = time.time(), event_timestamp = time.time(), start_value = '200')
         session.add(ts)
         session.commit()
+        session.flush()
+        return ts.transaction_pk
 
     def update_transaction_status(self, transaction_id, start_value):
         session = Session()

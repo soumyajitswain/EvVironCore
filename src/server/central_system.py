@@ -51,9 +51,6 @@ class ChargePoint(cp):
     def on_request_start_transaction(self, id_token, remote_start_id, evse_id, charging_profile):
         print('Start Transaction Request')
         try:
-            print(charging_profile)
-            print(charging_profile['transaction_id'])
-            print(charging_profile['stack_level'])
             ts.update_transaction_status(self, charging_profile['transaction_id'], charging_profile['stack_level'])
         except Exception as e:
             print(e)    
