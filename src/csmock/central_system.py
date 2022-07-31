@@ -47,6 +47,11 @@ class ChargePoint(cp):
     @on(Action.RequestStartTransaction)
     def on_request_start_transaction(self, id_token, remote_start_id, evse_id, charging_profile):
         print('Start Transaction Request')
+        try:
+            print(charging_profile)
+            print(charging_profile['stack_level'])
+        except Exception as e:
+            print(e)    
         return call_result.RequestStartTransactionPayload(
           status=RequestStartStopStatusType.accepted,
           transaction_id=str(remote_start_id)

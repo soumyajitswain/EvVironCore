@@ -163,7 +163,7 @@ class ChargePoint(cp):
                     """
             charging_profile = json.dumps({
                 "id": 761,
-                "stackLevel": 620,
+                "stackLevel": random.randint(1,1000),
                 "chargingProfilePurpose": "ChargingStationMaxProfile",
                 "chargingProfileKind": "Recurring",
                 "customData": {
