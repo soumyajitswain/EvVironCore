@@ -120,6 +120,7 @@ class TransactionManager:
         msg = session.query(TransactionStart)\
                     .filter(TransactionStart.transaction_pk == transaction_id)\
                     .update({TransactionStart.start_value : start_value})
+        session.commit()            
 
 
     def stop_transaction(self, transaction_pk, stop_value, stop_reason):

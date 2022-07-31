@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from ocpp.v201.enums import AuthorizationStatusType, Action, RequestStartStopStatusType
 
-from server.db_fun import TransactionManager as ts
+from db_fun import TransactionManager as ts
 
 
 try:
@@ -54,6 +54,7 @@ class ChargePoint(cp):
             print(charging_profile)
             print(charging_profile['transaction_id'])
             print(charging_profile['stack_level'])
+            ts.update_transaction_status(self, charging_profile['transaction_id'], charging_profile['stack_level'])
         except Exception as e:
             print(e)    
         return call_result.RequestStartTransactionPayload(

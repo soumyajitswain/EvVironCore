@@ -172,7 +172,7 @@ class ChargePoint(cp):
                 "recurrencyKind": "Daily",
                 "validFrom": "ABCDEFGHIJKLMNOPQRSTUVW",
                 "validTo": "ABCDEFG",
-                "transactionId": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                "transactionId": str(transaction_id)
                 
             })
             print(charging_profile)
