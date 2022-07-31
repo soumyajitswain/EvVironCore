@@ -45,7 +45,7 @@ class ChargePoint(cp):
         )
 
     @on(Action.RequestStartTransaction)
-    def on_request_start_transaction(self, id_token, remote_start_id):
+    def on_request_start_transaction(self, id_token, remote_start_id, evse_id, charging_profile):
         print('Start Transaction Request')
         return call_result.RequestStartTransactionPayload(
           status=RequestStartStopStatusType.accepted,
