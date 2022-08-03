@@ -9,27 +9,28 @@ import sqlalchemy
 from sqlalchemy_db_check import Chargebox, ChargingProfile, Connector, ConnectorChargingProfile, ConnectorMeterValue, ConnectorStatus, TransactionStart, TransactionStop, TransactionStopFail, Users, ChargeStationMessageQueue
 from sqlalchemy.orm import sessionmaker, Session
 
- 
 
-
-engine = sqlalchemy.create_engine("mariadb+mariadbconnector://root:root@127.0.0.1:3306/environ", echo=True, pool_size=20, max_overflow=0)
+engine = sqlalchemy.create_engine(
+    "mariadb+mariadbconnector://root:root@127.0.0.1:3306/environ", echo=True, pool_size=20, max_overflow=0)
 
 Session = sessionmaker(bind=engine)
 
 session = Session()
 
+
 class CustomJsonEncoder(json.JSONEncoder):
-    
+
     def default(self, obj):
         if isinstance(obj, Decimal):
             return float(obj)
         if isinstance(obj, datetime):
             return obj.isoformat()
         if isinstance(obj, date):
-                return str(obj)
+            return str(obj)
         if isinstance(obj, struct_time):
-                return datetime.fromtimestamp(mktime(obj))
+            return datetime.fromtimestamp(mktime(obj))
         return super(CustomJsonEncoder, self).default(obj)
+
 
 class UserDbFunc:
     def __init__(self, _user_id):
@@ -46,37 +47,39 @@ class UserDbFunc:
         _result = ''
 
         for r in res.scalars():
-           print(str(r))
-           user = r.__dict__
-           user.pop('_sa_instance_state')
-           print(user)
+            print(str(r))
+            user = r.__dict__
+            user.pop('_sa_instance_state')
+            print(user)
 
-        x = {'action':input['action'], 'val':[user]}           
+        x = {'action': input['action'], 'val': [user]}
         _result = json.dumps(x)
 
         print(_result)
         return _result
 
+
 class ChargeBoxFunc:
     def get_all_charge_box(input):
         session = Session()
-        stmt = sqlalchemy.select(Chargebox).where(Chargebox.fw_update_status == 'Y')
+        stmt = sqlalchemy.select(Chargebox).where(
+            Chargebox.fw_update_status == 'Y')
         res = session.execute(stmt)
         list = []
         for row in res.scalars():
             r = row.__dict__
-            #print(r)
+            # print(r)
             r.pop('_sa_instance_state')
             list.append(r)
-        
-        x = {'action':input['action'], 'func':input['func'], 'val':list} 
+
+        x = {'action': input['action'], 'func': input['func'], 'val': list}
         _result = json.dumps(x, cls=CustomJsonEncoder)
         print(_result)
         return _result
 
     def get_charge_connector_detail_by_id(input):
         session = Session()
-        join_query = session.query(Chargebox, Connector, ConnectorStatus )\
+        join_query = session.query(Chargebox, Connector, ConnectorStatus)\
             .join(Connector, Connector.charge_box_id == Chargebox.charge_box_id)\
             .join(ConnectorStatus, ConnectorStatus.connector_pk == Connector.connector_pk)\
             .filter(Chargebox.charge_box_id == input['charge_box_id']).all()
@@ -96,14 +99,15 @@ class ChargeBoxFunc:
             print(rowl)
             list.append(rowl)
 
-        x = {'action':input['action'], 'func':input['func'], 'val':list}
+        x = {'action': input['action'], 'func': input['func'], 'val': list}
         result = json.dumps(x, cls=CustomJsonEncoder)
 
         return result
 
     def get_connector_status(self, connector_id):
         session = Session()
-        query = session.query(ConnectorStatus).filter(ConnectorStatus.connector_pk == connector_id)
+        query = session.query(ConnectorStatus).filter(
+            ConnectorStatus.connector_pk == connector_id)
         _result = json.dumps([dict(r) for r in query.all])
         return _result
 
@@ -111,24 +115,27 @@ class ChargeBoxFunc:
 class TransactionManager:
     def start_transaction(self, connector_id, id_tag):
         session = Session()
-        ts = TransactionStart(connector_pk = connector_id, id_tag = id_tag, start_timestamp = time.time(), event_timestamp = time.time(), start_value = '200')
+        ts = TransactionStart(connector_pk=connector_id, id_tag=id_tag, start_value='0')
         session.add(ts)
-        session.commit()
         session.flush()
+        tstp = TransactionStop(transaction_pk=ts.transaction_pk, event_actor=1,  stop_value=0, stop_reason='NA')
+        session.add(tstp) 
+        tsf = TransactionStopFail(transaction_pk=ts.transaction_pk, event_actor=1,  stop_value=0, stop_reason='NA', fail_reason='NA')
+        session.add(tsf) 
+        session.commit()
         return ts.transaction_pk
 
     def update_transaction_status(self, transaction_id, start_value):
         session = Session()
         msg = session.query(TransactionStart)\
-                    .filter(TransactionStart.transaction_pk == transaction_id)\
-                    .update({TransactionStart.start_value : start_value})
-        session.commit()            
-
+            .filter(TransactionStart.transaction_pk == transaction_id)\
+            .update({TransactionStart.start_value: start_value})
+        session.commit()
 
     def stop_transaction(self, transaction_pk, stop_value, stop_reason):
         session = Session()
-        ts = TransactionStop(transaction_pk = transaction_pk, \
-            stop_value = stop_value, stop_reason = stop_reason, event_timestamp = time.time(), event_actor = 1)
+        ts = TransactionStop(transaction_pk=transaction_pk,
+                             stop_value=stop_value, stop_reason=stop_reason, event_timestamp=time.time(), event_actor=1)
         session.add(ts)
         session.commit()
 
@@ -137,8 +144,8 @@ class TransactionManager:
         query = session.query(TransactionStart, TransactionStop, TransactionStopFail)\
             .join(TransactionStop, TransactionStart.transaction_pk == TransactionStop.transaction_pk)\
             .join(TransactionStopFail, TransactionStopFail.transaction_pk == TransactionStart.transaction_pk)\
-            .filter(TransactionStart.transaction_pk == input['transaction_id']).all()    
-        _list = []     
+            .filter(TransactionStart.transaction_pk == input['transaction_id']).all()
+        _list = []
         for transactionStart, transactionStop, transactionStopFail in query:
             _ts1 = transactionStart.__dict__
             _ts1.pop('_sa_instance_state')
@@ -152,9 +159,9 @@ class TransactionManager:
             _ts3.pop('_sa_instance_state')
             _list.append(_ts3)
 
-        x = {'action':input['action'], 'func':input['func'], 'val':_list}    
+        x = {'action': input['action'], 'func': input['func'], 'val': _list}
         result = json.dumps(x, cls=CustomJsonEncoder)
-        return result    
+        return result
 
     def get_transaction_by_connector_id(input):
         session = Session()
@@ -163,7 +170,7 @@ class TransactionManager:
             .join(TransactionStopFail, TransactionStopFail.transaction_pk == TransactionStart.transaction_pk)\
             .filter(TransactionStart.connector_pk == input['connector_pk']).all()
 
-        _list = []     
+        _list = []
         for transactionStart, transactionStop, transactionStopFail in query:
             _ts1 = transactionStart.__dict__
             _ts1.pop('_sa_instance_state')
@@ -176,25 +183,25 @@ class TransactionManager:
             _ts3 = transactionStopFail.__dict__
             _ts3.pop('_sa_instance_state')
             _list.append(_ts3)
-            
 
-        x = {'action':input['action'], 'func':input['func'], 'val':_list}    
-        result = json.dumps(x, cls=CustomJsonEncoder)   
-        return result    
-
+        x = {'action': input['action'], 'func': input['func'], 'val': _list}
+        result = json.dumps(x, cls=CustomJsonEncoder)
+        return result
 
     def stop_fail_transaction(self, transaction_pk, stop_value, stop_reason, fail_reason):
         session = Session()
-        ts = TransactionStop(transaction_pk = transaction_pk, \
-          stop_value = stop_value, stop_reason = stop_reason, event_timestamp = time.time(), \
-              event_actor = 1, fail_reason = fail_reason)
+        ts = TransactionStop(transaction_pk=transaction_pk,
+                             stop_value=stop_value, stop_reason=stop_reason, event_timestamp=time.time(),
+                             event_actor=1, fail_reason=fail_reason)
         session.add(ts)
         session.commit()
+
 
 class ClassChargingMeasurement:
     def get_connector_value(self, connector_id):
         session = Session()
-        query = session.query(ConnectorMeterValue).filter(ConnectorMeterValue.connector_pk == connector_id)
+        query = session.query(ConnectorMeterValue).filter(
+            ConnectorMeterValue.connector_pk == connector_id)
         _res = query.all()
         _result = json.dumps([dict(r) for r in _res])
         return _result
@@ -202,40 +209,37 @@ class ClassChargingMeasurement:
     def get_charging_profile(self, connector_id):
         session = Session()
         query = session.query(ConnectorChargingProfile, ChargingProfile).join(ConnectorChargingProfile, ConnectorChargingProfile.charging_profile_pk == ChargingProfile.charging_profile_pk)\
-                .filter(ConnectorChargingProfile.connector_pk == connector_id)
+            .filter(ConnectorChargingProfile.connector_pk == connector_id)
         _res = query.all
         _result = json.dumps([dict(r) for r in _res])
         return _result
+
 
 class ChargeBoxMessageQueueManager:
     def get_message(self, action, func, status):
         session = Session()
         query = session.query(ChargeStationMessageQueue)\
                        .filter(sqlalchemy.and_(
-                        ChargeStationMessageQueue.action == action, 
-                        ChargeStationMessageQueue.func == func, 
-                        ChargeStationMessageQueue.status == status))
+                           ChargeStationMessageQueue.action == action,
+                           ChargeStationMessageQueue.func == func,
+                           ChargeStationMessageQueue.status == status))
         _res = query.all()
         _list = []
         for chargeStationMessageQueue in _res:
             _list.append(chargeStationMessageQueue.__dict__)
 
-        return _list                           
-        
+        return _list
+
     def save_message(action, func, transaction_id, status):
         session = Session()
-        _msg = ChargeStationMessageQueue(action = action, func = func,
-                                status = status, transaction_id = transaction_id)
+        _msg = ChargeStationMessageQueue(action=action, func=func,
+                                         status=status, transaction_id=transaction_id)
         session.add(_msg)
         session.commit()
-    
+
     def update_message(self, message_id, status):
         session = Session()
         _msg = session.query(ChargeStationMessageQueue)\
-                            .filter(ChargeStationMessageQueue.message_id == message_id)\
-                            .update({ChargeStationMessageQueue.status: status})
+            .filter(ChargeStationMessageQueue.message_id == message_id)\
+            .update({ChargeStationMessageQueue.status: status})
         session.commit()
-
-               
-
-                    

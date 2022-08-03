@@ -1,6 +1,7 @@
 from cmath import phase
 from datetime import datetime
 from email.headerregistry import Address
+from email.policy import default
 from lib2to3.pytree import Base
 from requests import Session, session
 import sqlalchemy 
@@ -219,19 +220,19 @@ class Settings(Base):
 class TransactionStart(Base):
     __tablename__ = 'transaction_start'
     transaction_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    event_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
+    event_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP, default=datetime.now())
     connector_pk = sqlalchemy.Column(sqlalchemy.Integer)
     id_tag = sqlalchemy.Column(sqlalchemy.String(length=255))
-    start_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
+    start_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP, default=datetime.now())
     start_value = sqlalchemy.Column(sqlalchemy.String(length=255))
 
 @iterable
 class TransactionStop(Base):
     __tablename__ = 'transaction_stop'
     transaction_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    event_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
+    event_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP, default=datetime.now())
     event_actor = sqlalchemy.Column(sqlalchemy.Integer)
-    stop_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
+    stop_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP, default=datetime.now())
     stop_value = sqlalchemy.Column(sqlalchemy.INT)
     stop_reason = sqlalchemy.Column(sqlalchemy.String(length=255))
 
@@ -239,9 +240,9 @@ class TransactionStop(Base):
 class TransactionStopFail(Base):
     __tablename__ = 'transaction_stop_failed'
     transaction_pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    event_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
+    event_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP, default=datetime.now())
     event_actor = sqlalchemy.Column(sqlalchemy.Integer)
-    stop_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP)
+    stop_timestamp = sqlalchemy.Column(sqlalchemy.TIMESTAMP, default=datetime.now())
     stop_value = sqlalchemy.Column(sqlalchemy.INT)
     stop_reason = sqlalchemy.Column(sqlalchemy.String(length=255))
     fail_reason = sqlalchemy.Column(sqlalchemy.TEXT)
