@@ -53,16 +53,27 @@ class StartTransaction(HubInitializer):
     def operation(self, _d):
         _user_id = _d['user_id']
         _result = ''
+        transaction_id = ''
+
         if _d['func'] == 'start_transaction':
             try:
-                transaction_id = TransactionManager.start_transaction(
-                    self, _d['connector_pk'], _user_id)
-                ChargeBoxMessageQueueManager.save_message(
-                    _d['action'], _d['func'], transaction_id, 'N')
-                _d['transaction_id'] = transaction_id
+                _history = TransactionManager.get_transaction_by_connector_id(_d)
+                    
+                if  _history:
+                    print(_history)
+                    return _history
+                else:
+                    transaction_id = TransactionManager.start_transaction(
+                        self, _d['connector_pk'], _user_id)
+                    ChargeBoxMessageQueueManager.save_message(
+                        _d['action'], _d['func'], transaction_id, 'N')
+
+                    _d['transaction_id'] = transaction_id
+
             except Exception as e:
                 print(e)
                 print(traceback.format_exc())
+
             _result = TransactionManager.get_transaction_by_connector_id(_d)
         elif _d['func'] == 'transaction_status':
             transaction_id = _d['transaction_id']
@@ -77,9 +88,6 @@ class StopTransaction(HubInitializer):
         try:
             _result = ChargeBoxMessageQueueManager.get_message_by_id(self,
                                                                      _d['action'], _d['func'], _d['transaction_id'])
-
-            print(_result)
-
             if not _result:
                 ChargeBoxMessageQueueManager.save_message(
                     _d['action'], _d['func'], _d['transaction_id'], 'N')

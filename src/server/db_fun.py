@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker, Session
 
 
 engine = sqlalchemy.create_engine(
-    "mariadb+mariadbconnector://root:root@127.0.0.1:3306/environ", echo=True, pool_size=20, max_overflow=0)
+    "mariadb+mariadbconnector://root:root@127.0.0.1:3306/environ", echo=False, pool_size=100, max_overflow=10)
 
 Session = sessionmaker(bind=engine)
 
@@ -171,7 +171,8 @@ class TransactionManager:
         query = session.query(TransactionStart, TransactionStop, TransactionStopFail)\
             .join(TransactionStop, TransactionStart.transaction_pk == TransactionStop.transaction_pk)\
             .join(TransactionStopFail, TransactionStopFail.transaction_pk == TransactionStart.transaction_pk)\
-            .filter(TransactionStart.connector_pk == input['connector_pk']).all()
+            .filter(TransactionStart.connector_pk == input['connector_pk'])\
+            .filter(TransactionStart.id_tag == input['user_id']).all()
 
         _list = []
         for transactionStart, transactionStop, transactionStopFail in query:
@@ -187,9 +188,13 @@ class TransactionManager:
             _ts3.pop('_sa_instance_state')
             _list.append(_ts3)
 
-        x = {'action': input['action'], 'func': input['func'], 'val': _list}
-        result = json.dumps(x, cls=CustomJsonEncoder)
-        return result
+        if not _list:
+            return []
+        else:
+            x = {'action': input['action'],
+                 'func': input['func'], 'val': _list}
+            result = json.dumps(x, cls=CustomJsonEncoder)
+            return result
 
     def stop_fail_transaction(self, transaction_pk, stop_value, stop_reason, fail_reason):
         session = Session()
