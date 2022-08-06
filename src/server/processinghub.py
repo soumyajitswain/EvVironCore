@@ -75,13 +75,20 @@ class StopTransaction(HubInitializer):
     def operation(self, _d):
         _result = ''
         try:
-            ChargeBoxMessageQueueManager.save_message(
-                _d['action'], _d['func'], _d['transaction_id'], 'N')
+            _result = ChargeBoxMessageQueueManager.get_message_by_id(self,
+                                                                     _d['action'], _d['func'], _d['transaction_id'])
+
+            print(_result)
+
+            if not _result:
+                ChargeBoxMessageQueueManager.save_message(
+                    _d['action'], _d['func'], _d['transaction_id'], 'N')
         except Exception as e:
             print(e)
+
         _result = json.dumps({'action': _d['action'],
-                   'func': _d['func'], 'val': ["sucess"]})
- 
+                              'func': _d['func'], 'val': ["sucess"]})
+
         print('Stop Transaction')
         return _result
 

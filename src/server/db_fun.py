@@ -115,13 +115,16 @@ class ChargeBoxFunc:
 class TransactionManager:
     def start_transaction(self, connector_id, id_tag):
         session = Session()
-        ts = TransactionStart(connector_pk=connector_id, id_tag=id_tag, start_value='0')
+        ts = TransactionStart(connector_pk=connector_id,
+                              id_tag=id_tag, start_value='0')
         session.add(ts)
         session.flush()
-        tstp = TransactionStop(transaction_pk=ts.transaction_pk, event_actor=1,  stop_value=0, stop_reason='NA')
-        session.add(tstp) 
-        tsf = TransactionStopFail(transaction_pk=ts.transaction_pk, event_actor=1,  stop_value=0, stop_reason='NA', fail_reason='NA')
-        session.add(tsf) 
+        tstp = TransactionStop(transaction_pk=ts.transaction_pk,
+                               event_actor=1,  stop_value=0, stop_reason='NA')
+        session.add(tstp)
+        tsf = TransactionStopFail(transaction_pk=ts.transaction_pk,
+                                  event_actor=1,  stop_value=0, stop_reason='NA', fail_reason='NA')
+        session.add(tsf)
         session.commit()
         return ts.transaction_pk
 
@@ -223,6 +226,20 @@ class ChargeBoxMessageQueueManager:
                            ChargeStationMessageQueue.action == action,
                            ChargeStationMessageQueue.func == func,
                            ChargeStationMessageQueue.status == status))
+        _res = query.all()
+        _list = []
+        for chargeStationMessageQueue in _res:
+            _list.append(chargeStationMessageQueue.__dict__)
+
+        return _list
+
+    def get_message_by_id(self, action, func, transaction_id):
+        session = Session()
+        query = session.query(ChargeStationMessageQueue)\
+                       .filter(sqlalchemy.and_(
+                           ChargeStationMessageQueue.action == action,
+                           ChargeStationMessageQueue.func == func,
+                           ChargeStationMessageQueue.transaction_id == transaction_id))
         _res = query.all()
         _list = []
         for chargeStationMessageQueue in _res:
