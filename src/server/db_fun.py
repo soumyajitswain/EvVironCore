@@ -133,7 +133,9 @@ class TransactionManager:
         msg = session.query(TransactionStart)\
             .filter(TransactionStart.transaction_pk == transaction_id)\
             .update({TransactionStart.start_value: start_value})
+        
         session.commit()
+        session.close() 
 
     def stop_transaction(self, transaction_pk, stop_value, stop_reason):
         session = Session()
@@ -152,6 +154,7 @@ class TransactionManager:
             ts = ts.__dict__
             _result = ts
 
+        session.close()
         return _result     
 
     def get_transaction(input):
@@ -159,7 +162,8 @@ class TransactionManager:
         query = session.query(TransactionStart, TransactionStop, TransactionStopFail)\
             .join(TransactionStop, TransactionStart.transaction_pk == TransactionStop.transaction_pk)\
             .join(TransactionStopFail, TransactionStopFail.transaction_pk == TransactionStart.transaction_pk)\
-            .filter(TransactionStart.transaction_pk == input['transaction_id']).all()
+            .filter(TransactionStart.transaction_pk == input['transaction_id'])\
+            .filter(TransactionStop.stop_value == 0).all()
         _list = []
         for transactionStart, transactionStop, transactionStopFail in query:
             _ts1 = transactionStart.__dict__
@@ -176,6 +180,8 @@ class TransactionManager:
 
         x = {'action': input['action'], 'func': input['func'], 'val': _list}
         result = json.dumps(x, cls=CustomJsonEncoder)
+        
+        session.close()
         return result
 
     def get_transaction_by_connector_id(input):
@@ -200,6 +206,7 @@ class TransactionManager:
             _ts3.pop('_sa_instance_state')
             _list.append(_ts3)
 
+        session.close()
         if not _list:
             return []
         else:
@@ -215,6 +222,7 @@ class TransactionManager:
                              event_actor=1, fail_reason=fail_reason)
         session.add(ts)
         session.commit()
+        session.close()
 
 
 class ClassChargingMeasurement:
@@ -224,6 +232,7 @@ class ClassChargingMeasurement:
             ConnectorMeterValue.connector_pk == connector_id)
         _res = query.all()
         _result = json.dumps([dict(r) for r in _res])
+        session.close()
         return _result
 
     def get_charging_profile(self, connector_id):
@@ -232,6 +241,7 @@ class ClassChargingMeasurement:
             .filter(ConnectorChargingProfile.connector_pk == connector_id)
         _res = query.all
         _result = json.dumps([dict(r) for r in _res])
+        session.close()
         return _result
 
 
@@ -247,7 +257,7 @@ class ChargeBoxMessageQueueManager:
         _list = []
         for chargeStationMessageQueue in _res:
             _list.append(chargeStationMessageQueue.__dict__)
-
+        session.close()
         return _list
 
     def get_message_by_id(self, action, func, transaction_id):
@@ -261,7 +271,7 @@ class ChargeBoxMessageQueueManager:
         _list = []
         for chargeStationMessageQueue in _res:
             _list.append(chargeStationMessageQueue.__dict__)
-
+        session.close()
         return _list
 
     def save_message(action, func, transaction_id, status):
@@ -270,6 +280,7 @@ class ChargeBoxMessageQueueManager:
                                          status=status, transaction_id=transaction_id)
         session.add(_msg)
         session.commit()
+        session.close()
 
     def update_message(self, message_id, status):
         session = Session()
@@ -277,3 +288,4 @@ class ChargeBoxMessageQueueManager:
             .filter(ChargeStationMessageQueue.message_id == message_id)\
             .update({ChargeStationMessageQueue.status: status})
         session.commit()
+        session.close()
