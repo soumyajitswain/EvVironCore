@@ -30,9 +30,9 @@ logging.basicConfig(level=logging.INFO)
 
 
 class ChargePointDBHelper():
-    def get_all_message(self):
+    def get_all_message(self, action, func):
         list = msgqueue.get_message(
-            self, 'StartTransaction', 'start_transaction', 'N')
+            self, action, func, 'N')
         return list
 
     def update_message(self, message_id, status):
@@ -49,11 +49,14 @@ class ChargePoint(cp):
         while True:
             await self.call(request)
             try:
-                for l in cp_db_helper.get_all_message():
+                for l in cp_db_helper.get_all_message('StartTransaction', 'start_transaction'):
                     response = await self.request_start_transaction_request(l['transaction_id'])
-                    #cp_db_helper.update_message(l['message_id'], 'Y')
+                    # cp_db_helper.update_message(l['message_id'], 'Y') # disabled for testing
+                for r in cp_db_helper.get_all_message('StopTransaction', 'stop_transaction'):
+                    response = await self.request_stop_transaction_request(r['transaction_id'])
+                    # cp_db_helper.update_message(l['message_id'], 'Y') # disabled for testing
             except Exception as e:
-                print(e)
+                print(traceback.format_exc())
 
             await asyncio.sleep(interval)
 
@@ -163,7 +166,7 @@ class ChargePoint(cp):
                     """
             charging_profile = json.dumps({
                 "id": 761,
-                "stackLevel": random.randint(1,1000),
+                "stackLevel": random.randint(1, 1000),
                 "chargingProfilePurpose": "ChargingStationMaxProfile",
                 "chargingProfileKind": "Recurring",
                 "customData": {
@@ -173,7 +176,7 @@ class ChargePoint(cp):
                 "validFrom": "ABCDEFGHIJKLMNOPQRSTUVW",
                 "validTo": "ABCDEFG",
                 "transactionId": str(transaction_id)
-                
+
             })
             print(charging_profile)
             request = call.RequestStartTransactionPayload(
@@ -195,12 +198,12 @@ class ChargePoint(cp):
     async def request_stop_transaction_request(self, transactionId):
         try:
             request = call.RequestStopTransactionPayload(
-                transaction_id=transactionId
+                transaction_id=str(transactionId)
             )
 
             response = await self.call(request)
         except KeyError as e:
-            print('Exception in stop transaction')
+            print(traceback.format_exc())
             print(e)
 
 

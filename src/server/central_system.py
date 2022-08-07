@@ -2,6 +2,8 @@ from argparse import Action
 import asyncio
 import logging
 from datetime import datetime
+import traceback
+from unittest import result
 from ocpp.v201.enums import AuthorizationStatusType, Action, RequestStartStopStatusType
 
 from db_fun import TransactionManager as ts
@@ -39,32 +41,44 @@ class ChargePoint(cp):
         return call_result.HeartbeatPayload(
             current_time=datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S') + "Z"
         )
-    
+
     @on(Action.Authorize)
     def on_authorize_request(self, id_token):
         print('Authorize Request!')
         return call_result.AuthorizePayload(
-          id_token_info={"status": AuthorizationStatusType.accepted}
+            id_token_info={"status": AuthorizationStatusType.accepted}
         )
 
     @on(Action.RequestStartTransaction)
     def on_request_start_transaction(self, id_token, remote_start_id, evse_id, charging_profile):
         print('Start Transaction Request')
         try:
-            ts.update_transaction_status(self, charging_profile['transaction_id'], charging_profile['stack_level'])
+            ts.update_transaction_status(
+                self, charging_profile['transaction_id'], charging_profile['stack_level'])
         except Exception as e:
-            print(e)    
+            print(e)
         return call_result.RequestStartTransactionPayload(
-          status=RequestStartStopStatusType.accepted,
-          transaction_id=str(remote_start_id)
+            status=RequestStartStopStatusType.accepted,
+            transaction_id=str(remote_start_id)
         )
 
     @on(Action.RequestStopTransaction)
     def on_request_stop_transaction(self, transaction_id):
         print('Stop Transaction Request')
-        return call_result.RequestStopTransactionPayload(
-          status=RequestStartStopStatusType.accepted
+        _result = call_result.RequestStopTransactionPayload(
+            status=RequestStartStopStatusType.accepted
         )
+        try:
+            tsDtl = ts.get_transaction_by_id(self, transaction_id)
+            print(tsDtl['start_value'])
+            ts.stop_transaction(self, transaction_id, str(tsDtl['start_value']),'Stopped')
+        except Exception as e:
+            print(traceback.format_exc())
+            _result = call_result.RequestStopTransactionPayload(
+                status=RequestStartStopStatusType.rejected
+            )
+        return _result
+
 
 async def on_connect(websocket, path):
     """ For every new charge point that connects, create a ChargePoint

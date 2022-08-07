@@ -137,10 +137,22 @@ class TransactionManager:
 
     def stop_transaction(self, transaction_pk, stop_value, stop_reason):
         session = Session()
-        ts = TransactionStop(transaction_pk=transaction_pk,
-                             stop_value=stop_value, stop_reason=stop_reason, event_timestamp=time.time(), event_actor=1)
-        session.add(ts)
+        session.query(TransactionStop)\
+            .filter(TransactionStop.transaction_pk == transaction_pk)\
+            .update({TransactionStop.stop_value: stop_value, TransactionStop.stop_reason: stop_reason})
         session.commit()
+        session.close()
+
+    def get_transaction_by_id(self, transaction_id):
+        session = Session()
+        query = session.query(TransactionStart).filter(TransactionStop.transaction_pk == transaction_id)\
+                        .all()
+        _result = '' 
+        for ts in query:
+            ts = ts.__dict__
+            _result = ts
+
+        return _result     
 
     def get_transaction(input):
         session = Session()
