@@ -70,7 +70,6 @@ class ChargePoint(cp):
         )
         try:
             tsDtl = ts.get_transaction_by_id(self, transaction_id)
-            print(tsDtl['start_value'])
             ts.stop_transaction(self, transaction_id, str(tsDtl['start_value']),'Stopped')
         except Exception as e:
             print(traceback.format_exc())

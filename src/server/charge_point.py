@@ -3,6 +3,7 @@ import json
 import logging
 import random
 import traceback
+from urllib import response
 
 from requests import request
 
@@ -54,7 +55,7 @@ class ChargePoint(cp):
                     # cp_db_helper.update_message(l['message_id'], 'Y') # disabled for testing
                 for r in cp_db_helper.get_all_message('StopTransaction', 'stop_transaction'):
                     response = await self.request_stop_transaction_request(r['transaction_id'])
-                    # cp_db_helper.update_message(l['message_id'], 'Y') # disabled for testing
+                    # cp_db_helper.update_message(r['message_id'], 'Y') # disabled for testing
             except Exception as e:
                 print(traceback.format_exc())
 
@@ -206,10 +207,177 @@ class ChargePoint(cp):
             print(traceback.format_exc())
             print(e)
 
+    async def cancel_reservation_request(self, reservation_id):
+        try:
+            request = call.CancelReservationPayload(
+                reservation_id=reservation_id
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc())    
+
+    async def certificate_signed_request(self, reservation_id):
+        try:
+            request = call.CertificateSignedPayload(
+                certificate_chain='', 
+                certificate_type=''
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc())    
+
+    async def change_availability_request(self):
+        try:
+            request = call.ChangeAvailabilityPayload(
+                operational_status='',
+                evse=None
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+
+    async def clear_cache_request(self):
+        try:
+            request = call.ClearCachePayload(
+
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+
+    async def clear_charging_profile_request(self):
+        try:
+            request = call.ClearChargingProfilePayload(
+                charging_profile_id=0,
+                charging_profile_criteria=None
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+
+    async def clear_display_message_request(self):
+        try:
+            request = call.ClearDisplayMessagePayload(
+                id=0
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+
+    async def clear_charging_limit_request(self):
+        try:
+            request = call.ClearedChargingLimitPayload(
+                charging_limit_source='',
+                evse_id=None
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+
+    async def clear_variable_monitoring_request(self):
+        try:
+            request = call.ClearVariableMonitoringPayload(
+                id=[]
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+
+    async def cost_update_request(self):
+        try:
+            request = call.CostUpdatedPayload(
+                total_cost=100,
+                transaction_id=1
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+
+    async def customer_information_request(self):
+        try:
+            request = call.CustomerInformationPayload(
+                request_id=1,
+                report=False,
+                clear=False,
+                customer_certificate=None,
+                customer_identifier=None
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+
+    async def data_transfer_request(self):
+        try:
+            request = call.DataTransferPayload(
+                vendor_id=None,
+                message_id=None,
+                data=None
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+
+    async def delete_certificate_request(self):
+        try:
+            request = call.DeleteCertificatePayload(
+                certificate_hash_data=None
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+    
+    async def firmware_status_notification_request(self):
+        try:
+            request = call.FirmwareStatusNotificationPayload(
+                status=None,
+                request_id=None,
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+
+    async def get_15118ev_certificate_request(self):
+        try:
+            request = call.Get15118EVCertificatePayload(
+                iso15118_schema_version=None,
+                action=None,
+                exi_request=None
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+
+    async def get_base_report_request(self):
+        try:
+            request = call.GetBaseReportPayload(
+                request_id=None,
+                report_base=None
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+
+    async def get_certificate_status_request(self):
+        try:
+            request = call.GetCertificateStatusPayload(
+                ocsp_request_data=None
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
+
+    async def get_charging_profile_request(self):
+        try:
+            request = call.GetChargingProfilesPayload(
+                request_id=0,
+                charging_profile=None,
+                evse_id=None
+            )
+            response = await self.call(request)
+        except Exception as e:
+            print(traceback.format_exc(e))     
 
 charge_point = null
-
-
 async def main():
     async with websockets.connect(
             'ws://localhost:9000/CP_1',
