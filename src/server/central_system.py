@@ -1,5 +1,6 @@
 from argparse import Action
 import asyncio
+import json
 import logging
 from datetime import datetime
 import traceback
@@ -70,11 +71,38 @@ class ChargePoint(cp):
         )
         try:
             tsDtl = ts.get_transaction_by_id(self, transaction_id)
-            ts.stop_transaction(self, transaction_id, str(tsDtl['start_value']),'Stopped')
+            ts.stop_transaction(self, transaction_id, str(
+                tsDtl['start_value']), 'Stopped')
         except Exception as e:
             print(traceback.format_exc())
             _result = call_result.RequestStopTransactionPayload(
                 status=RequestStartStopStatusType.rejected
+            )
+        return _result
+
+    @on(Action.GetTransactionStatus)
+    def on_get_transaction_status(self, transaction_id):
+        print('Get the transaction request')
+        is_transaction_live = True
+        try:
+            input = {'action':'GetTransactionStatus','func':'get_transaction_status','transaction_id': transaction_id}
+            tsDtl = ts.get_transaction(input)
+            tsDtl = json.loads(tsDtl)
+            print(tsDtl)
+            print(type(tsDtl))
+
+            print(tsDtl['val'])
+            if not tsDtl['val']:
+                is_transaction_live = False
+
+            _result = call_result.GetTransactionStatusPayload(
+                messages_in_queue=is_transaction_live
+            )
+
+        except Exception as e:
+            print(traceback.format_exc())
+            _result = call_result.GetTransactionStatusPayload(
+                messages_in_queue=is_transaction_live
             )
         return _result
 
