@@ -85,13 +85,10 @@ class ChargePoint(cp):
         print('Get the transaction request')
         is_transaction_live = True
         try:
-            input = {'action':'GetTransactionStatus','func':'get_transaction_status','transaction_id': transaction_id}
+            input = {'action': 'GetTransactionStatus',
+                     'func': 'get_transaction_status', 'transaction_id': transaction_id}
             tsDtl = ts.get_transaction(input)
             tsDtl = json.loads(tsDtl)
-            print(tsDtl)
-            print(type(tsDtl))
-
-            print(tsDtl['val'])
             if not tsDtl['val']:
                 is_transaction_live = False
 
@@ -104,6 +101,21 @@ class ChargePoint(cp):
             _result = call_result.GetTransactionStatusPayload(
                 messages_in_queue=is_transaction_live
             )
+        return _result
+
+    @on(Action.SetChargingProfile)
+    def on_set_charging_profile(self, evse_id, charging_profile):
+        print('Set Charging Profile ')
+
+        try:
+            _result = call_result.SetChargingProfilePayload(
+                status='Accepted',
+                status_info={"reasonCode":'200'}
+            )
+
+        except Exception as e:
+            print(traceback.format_exc())
+
         return _result
 
 

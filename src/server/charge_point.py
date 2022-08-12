@@ -44,6 +44,94 @@ class ChargePointDBHelper():
 cp_db_helper = ChargePointDBHelper()
 
 
+class ChargePointProfileHelper():
+    def get_charge_point_profile(self):
+        charge_profile = {
+            "id": 761,
+            "stackLevel": random.randint(1, 1000),
+            "chargingProfilePurpose": "ChargingStationMaxProfile",
+            "chargingProfileKind": "Recurring",
+            "customData": {
+                "vendorId": "ABCDEFGHIJKLMNOPQRST"
+            },
+            "recurrencyKind": "Daily",
+            "validFrom": "ABCDEFGHIJKLMNOPQRSTUVW",
+            "validTo": "ABCDEFG",
+            "transactionId": str(1),
+            "chargingSchedule": self.get_charge_point_schedule()
+
+        }
+        return charge_profile
+
+    def get_charge_point_schedule(self):
+        charge_schedule = [{
+            "id": 207,
+            "chargingRateUnit": "W",
+            "chargingSchedulePeriod": [
+                {
+                    "startPeriod": 122,
+                    "limit": 608.25,
+                    "customData": {
+                        "vendorId": "ABCDEFGHIJ"
+                    },
+                    "numberPhases": 19,
+                    "phaseToUse": 262
+                }
+            ],
+            "customData": {
+                "vendorId": "ABCDEFGHIJKLMNOPQ"
+            },
+            "startSchedule": "ABCDEFGH",
+            "duration": -1,
+            "minChargingRate": 75.0,
+            "salesTariff": {
+                "id": 436,
+                "salesTariffEntry": [
+                    {
+                        "relativeTimeInterval": {
+                            "start": 774,
+                            "customData": {
+                                "vendorId": "ABCDEFGHIJKLMNOPQR"
+                            },
+                            "duration": 147
+                        },
+                        "customData": {
+                            "vendorId": "ABCDEFGHIJKLMNOPQRSTUVW"
+                        },
+                        "ePriceLevel": 972,
+                        "consumptionCost": [
+                            {
+                                "startValue": 985.5,
+                                "cost": [
+                                    {
+                                        "costKind": "RelativePricePercentage",
+                                        "amount": 426,
+                                        "customData": {
+                                            "vendorId": "ABCD"
+                                        },
+                                        "amountMultiplier": 206
+                                    }
+                                ],
+                                "customData": {
+                                    "vendorId": "ABCDEFGHIJKLMNOPQRSTUVWX"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "customData": {
+                    "vendorId": "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                },
+                "salesTariffDescription": "ABCDEFGHI",
+                "numEPriceLevels": 732
+            }
+        }]
+        return charge_schedule
+
+
+cp_pf_helper = ChargePointProfileHelper()
+
+
 class ChargePoint(cp):
 
     async def send_heartbeat(self, interval):
@@ -60,7 +148,7 @@ class ChargePoint(cp):
                     response = await self.request_stop_transaction_request(r['transaction_id'])
                     # cp_db_helper.update_message(r['message_id'], 'Y') # disabled for testing
 
-                await self.get_transaction_status_request(r['transaction_id'])
+                # await self.get_transaction_status_request(r['transaction_id'])
 
             except Exception as e:
                 print(traceback.format_exc())
@@ -98,11 +186,9 @@ class ChargePoint(cp):
 
         if response.status == 'Accepted':
             print("Connected to central system.")
-            await self.send_heartbeat(response.interval)
+            # await self.send_heartbeat(response.interval)
             # await self.authorize_request()
-            # response = await self.request_start_transaction_request()
-            #transaction_id = response.transaction_id;
-            # await self.request_stop_transaction_request(transaction_id);
+            await self.set_charging_profile_request(1)
 
     async def request_start_transaction_request(self, transaction_id):
         try:
@@ -727,10 +813,13 @@ class ChargePoint(cp):
         except Exception as e:
             print(traceback.format_exc(e))
 
-    async def set_charging_profile_request(self):
+    async def set_charging_profile_request(self, charge_box_id):
         try:
+            charge_profile = cp_pf_helper.get_charge_point_profile()
+
             request = call.SetChargingProfilePayload(
-                evse_id=None
+                evse_id=charge_box_id,
+                charging_profile=charge_profile
             )
 
             response = await self.call(request)
