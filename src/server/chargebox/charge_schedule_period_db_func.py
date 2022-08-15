@@ -3,7 +3,7 @@ import os
 import sys
 from turtle import update
 
-from ..sqlalchemy_db_check import ChargingSchedulePeriod
+from ..sqlalchemy_db_check import ChargingSchedulePeriod, Reservation
 if os.path.dirname(os.path.abspath(__file__+"/../")) not in sys.path:
     sys.path.append(os.path.dirname(os.path.abspath(__file__+"/../")))
 
@@ -85,5 +85,52 @@ class ChargingSchedulePeriodFunc():
         session = Session()
         stmt = session.query(ChargingSchedulePeriod).filter(
             ChargingSchedulePeriod.charging_profile_pk == input['charging_profile_pk']).delete()
+        session.commit()
+        session.close()
+
+class ReservationFunc():
+    def get_reservation(input):
+        session = Session()
+        query = sqlalchemy.select(Reservation).where(
+            Reservation.reservation_pk == input['reservation_pk'])
+
+        list = []
+        for row in query.all():
+            r = row.__dict__
+            r.pop('_sa_instance_state')
+            list.append(r)
+
+        x = {'action': input['action'], 'func': input['func'], 'val': list}
+        _result = json.dumps(x, cls=CustomJsonEncoder)
+        print(_result)
+        session.close()
+        return _result
+
+    def save_reservation(input):
+        session = Session()
+        stmt = Reservation(registry=input['registry'],
+                                      start_period_in_seconds=input['start_period_in_seconds'],
+                                      charging_profile_purpose=input['charging_profile_purpose'],
+                                      power_limit=input['power_limit'],
+                                      number_phases=input['number_phases'])
+        session.add(stmt)
+        session.commit()
+        session.close()
+
+    def update_reservation(input):
+        session = Session()
+        session.query(Reservation).\
+            where(
+                Reservation.reservation_pk == input['reservation_pk']).\
+            update(
+                {Reservation.expiry_datetime: input['expiry_datetime']})
+
+        session.commit()
+        session.close()
+
+    def delete_reservation(input):
+        session = Session()
+        stmt = session.query(Reservation).filter(
+            Reservation.reservation_pk == input['reservation_pk']).delete()
         session.commit()
         session.close()
