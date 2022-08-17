@@ -190,6 +190,7 @@ class ChargePoint(cp):
             # await self.authorize_request()
             await self.set_charging_profile_request(1)
             await self.clear_charging_profile_request(1)
+            await self.get_charging_profile_request(1, 1)
 
     async def request_start_transaction_request(self, transaction_id):
         try:
@@ -466,12 +467,24 @@ class ChargePoint(cp):
         except Exception as e:
             print(traceback.format_exc(e))
 
-    async def get_charging_profile_request(self):
+    async def get_charging_profile_request(self, request_id, charge_box_id):
         try:
             request = call.GetChargingProfilesPayload(
-                request_id=0,
-                charging_profile=None,
-                evse_id=None
+                request_id=request_id,
+                charging_profile={
+                    "customData": {
+                        "vendorId": "ABCDEFGHIJKLMNOPQRSTUVW"
+                    },
+                    "chargingProfilePurpose": "ChargingStationMaxProfile",
+                    "stackLevel": 792,
+                    "chargingProfileId": [
+                        93
+                    ],
+                    "chargingLimitSource": [
+                        "SO"
+                    ]
+                },
+                evse_id=charge_box_id
             )
             response = await self.call(request)
         except Exception as e:

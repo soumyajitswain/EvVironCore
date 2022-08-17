@@ -139,6 +139,22 @@ class ChargePoint(cp):
 
         return _result
 
+    @on(Action.GetChargingProfiles)
+    def on_get_charging_profiles(self, request_id, charging_profile, evse_id ):
+        print('Get Charge Profiles')
+
+        try:
+            _result = call_result.GetChargingProfilesPayload(
+                status="NoProfiles",
+                status_info={
+                    "reasonCode":"wewedw"
+                }
+            )
+
+        except Exception as e:
+            print(traceback.format_exc())
+
+        return _result
 
 async def on_connect(websocket, path):
     """ For every new charge point that connects, create a ChargePoint
