@@ -156,6 +156,20 @@ class ChargePoint(cp):
 
         return _result
 
+    @on(Action.ReportChargingProfiles)
+    def on_report_charging_profiles(self, request_id, charging_profile, evse_id, charging_limit_source, tbc ):
+        print('report Charge Profiles')
+
+        try:
+            _result = call_result.ReportChargingProfilesPayload(
+
+            )
+
+        except Exception as e:
+            print(traceback.format_exc())
+
+        return _result
+
 async def on_connect(websocket, path):
     """ For every new charge point that connects, create a ChargePoint
     instance and start listening for messages.

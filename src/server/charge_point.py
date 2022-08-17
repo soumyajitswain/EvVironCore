@@ -191,6 +191,7 @@ class ChargePoint(cp):
             await self.set_charging_profile_request(1)
             await self.clear_charging_profile_request(1)
             await self.get_charging_profile_request(1, 1)
+            await self.report_charging_profiles_request()
 
     async def request_start_transaction_request(self, transaction_id):
         try:
@@ -771,10 +772,11 @@ class ChargePoint(cp):
     async def report_charging_profiles_request(self):
         try:
             request = call.ReportChargingProfilesPayload(
-                request_id=None,
-                charging_limit_source=None,
-                evse_id=None,
-                tbc=None
+                request_id=838,
+                charging_limit_source="SO",
+                charging_profile=[cp_pf_helper.get_charge_point_profile()],
+                evse_id=1234,
+                tbc=False
             )
 
             response = await self.call(request)
