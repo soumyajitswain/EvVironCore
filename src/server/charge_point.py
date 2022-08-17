@@ -189,6 +189,7 @@ class ChargePoint(cp):
             # await self.send_heartbeat(response.interval)
             # await self.authorize_request()
             await self.set_charging_profile_request(1)
+            await self.clear_charging_profile_request(1)
 
     async def request_start_transaction_request(self, transaction_id):
         try:
@@ -337,11 +338,18 @@ class ChargePoint(cp):
         except Exception as e:
             print(traceback.format_exc(e))
 
-    async def clear_charging_profile_request(self):
+    async def clear_charging_profile_request(self, charging_profile_id):
         try:
             request = call.ClearChargingProfilePayload(
-                charging_profile_id=0,
-                charging_profile_criteria=None
+                charging_profile_id=charging_profile_id,
+                charging_profile_criteria={
+                    "customData": {
+                        "vendorId": "ABCDEFGHIJKLMNOPQRSTUVWXYZA"
+                    },
+                    "evseId": 975,
+                    "chargingProfilePurpose": "ChargingStationExternalConstraints",
+                    "stackLevel": 695
+                }
             )
             response = await self.call(request)
         except Exception as e:

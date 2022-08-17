@@ -110,7 +110,28 @@ class ChargePoint(cp):
         try:
             _result = call_result.SetChargingProfilePayload(
                 status='Accepted',
-                status_info={"reasonCode":'200'}
+                status_info={"reasonCode": '200'}
+            )
+
+        except Exception as e:
+            print(traceback.format_exc())
+
+        return _result
+
+    @on(Action.ClearChargingProfile)
+    def on_clear_charging_profile(self, charging_profile_id, charging_profile_criteria):
+        print('Clear Charge Profile')
+
+        try:
+            _result = call_result.ClearChargingProfilePayload(
+                status='Unknown',
+                status_info={
+                    "reasonCode": "ABCDEFGHIJKLMNOPQ",
+                    "customData": {
+                        "vendorId": "ABCDEFGHIJK"
+                    },
+                    "additionalInfo": "ABCDEFGHIJKLMNO"
+                }
             )
 
         except Exception as e:
