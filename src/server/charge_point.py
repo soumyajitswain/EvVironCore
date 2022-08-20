@@ -366,11 +366,11 @@ class ChargePoint(cp):
         except Exception as e:
             print(traceback.format_exc(e))
 
-    async def clear_charging_limit_request(self):
+    async def clear_charging_limit_request(self, charge_box_id):
         try:
             request = call.ClearedChargingLimitPayload(
-                charging_limit_source='',
-                evse_id=None
+                charging_limit_source='Other',
+                evse_id=charge_box_id
             )
             response = await self.call(request)
         except Exception as e:
@@ -379,7 +379,7 @@ class ChargePoint(cp):
     async def clear_variable_monitoring_request(self):
         try:
             request = call.ClearVariableMonitoringPayload(
-                id=[]
+                id=[12, 34]
             )
             response = await self.call(request)
         except Exception as e:
@@ -395,14 +395,19 @@ class ChargePoint(cp):
         except Exception as e:
             print(traceback.format_exc(e))
 
-    async def customer_information_request(self):
+    async def customer_information_request(self, request_id):
         try:
             request = call.CustomerInformationPayload(
-                request_id=1,
+                request_id=request_id,
                 report=False,
                 clear=False,
-                customer_certificate=None,
-                customer_identifier=None
+                customer_certificate={
+                    "hashAlgorithm": "SHA256",
+                    "issuerNameHash": "ABCDEFGHIJKLM",
+                    "issuerKeyHash": "ABCDEFGHIJKLMNO",
+                    "serialNumber": "ABCDEFGHIJKLMNOP",
+                },
+                customer_identifier='aas'
             )
             response = await self.call(request)
         except Exception as e:
@@ -411,9 +416,9 @@ class ChargePoint(cp):
     async def data_transfer_request(self):
         try:
             request = call.DataTransferPayload(
-                vendor_id=None,
-                message_id=None,
-                data=None
+                vendor_id='ABCD',
+                message_id='qweddd',
+                data={}
             )
             response = await self.call(request)
         except Exception as e:
@@ -422,7 +427,12 @@ class ChargePoint(cp):
     async def delete_certificate_request(self):
         try:
             request = call.DeleteCertificatePayload(
-                certificate_hash_data=None
+                certificate_hash_data={
+                    "hashAlgorithm": "SHA512",
+                    "issuerNameHash": "ABCDEFGHIJKLMNOPQRSTUVWXY",
+                    "issuerKeyHash": "ABCDEFGHI",
+                    "serialNumber": "ABCDEF"
+                }
             )
             response = await self.call(request)
         except Exception as e:
@@ -431,8 +441,8 @@ class ChargePoint(cp):
     async def firmware_status_notification_request(self):
         try:
             request = call.FirmwareStatusNotificationPayload(
-                status=None,
-                request_id=None,
+                status='Installed',
+                request_id=147,
             )
             response = await self.call(request)
         except Exception as e:
@@ -441,9 +451,9 @@ class ChargePoint(cp):
     async def get_15118ev_certificate_request(self):
         try:
             request = call.Get15118EVCertificatePayload(
-                iso15118_schema_version=None,
-                action=None,
-                exi_request=None
+                iso15118_schema_version='ABCDEFGHIJKLMNOPQRSTUVWXYZA',
+                action='Update',
+                exi_request='asaddd'
             )
             response = await self.call(request)
         except Exception as e:
@@ -452,8 +462,8 @@ class ChargePoint(cp):
     async def get_base_report_request(self):
         try:
             request = call.GetBaseReportPayload(
-                request_id=None,
-                report_base=None
+                request_id=898,
+                report_base='FullInventory'
             )
             response = await self.call(request)
         except Exception as e:
@@ -574,8 +584,6 @@ class ChargePoint(cp):
         except Exception as e:
             print(traceback.format_exc(e))
 
-    # Implemented
-    # Get the transaction detail based on transaction id
     async def get_transaction_status_request(self, transaction_id):
         try:
             request = call.GetTransactionStatusPayload(

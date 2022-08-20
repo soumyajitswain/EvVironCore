@@ -170,6 +170,141 @@ class ChargePoint(cp):
 
         return _result
 
+    @on(Action.ClearedChargingLimit)
+    def on_cleared_charging_limit(self, charge_box_id ):
+        print('Clear charging limit')
+        try:
+            _result = call_result.ClearedChargingLimitPayload()
+        except Exception as e:
+            print(traceback.format_exc())
+
+        return _result
+
+    @on(Action.ClearVariableMonitoring)
+    def on_clear_variable_monitoring(self,id ):
+        print('Clear charging limit')
+        try:
+            _result = call_result.ClearVariableMonitoringPayload()
+
+        except Exception as e:
+            print(traceback.format_exc())
+            
+        return _result
+
+    @on(Action.CostUpdate)
+    def on_cost_update(self):
+        print('Cost update')
+        try:
+            _result = call_result.CostUpdatedPayload()
+        except Exception as e:
+            print(traceback.format_exc())
+            
+        return _result
+
+    @on(Action.CustomerInformation)
+    def on_customer_information(self):
+        print('Customer information')
+        try:
+            _result = call_result.CustomerInformationPayload(
+                status="NoProfiles",
+                status_info={
+                    "reasonCode":"wewedw"
+                }
+            )
+        except Exception as e:
+            print(traceback.format_exc())
+            
+        return _result
+
+    @on(Action.CustomerInformation)
+    def on_customer_information(self):
+        print('Customer information')
+        try:
+            _result = call_result.CustomerInformationPayload(
+                status="NoProfiles",
+                status_info={
+                    "reasonCode":"wewedw"
+                }
+            )
+        except Exception as e:
+            print(traceback.format_exc())
+            
+        return _result
+
+    @on(Action.DataTransfer)
+    def on_data_transfer(self, vendor_id, message_id, data):
+        print('Data Transfer')
+        try:
+            _result = call_result.DataTransferPayload(
+                status="NoProfiles",
+                status_info={
+                    "reasonCode":"wewedw"
+                }
+            )
+        except Exception as e:
+            print(traceback.format_exc())
+            
+        return _result
+
+    @on(Action.DeleteCertificate)
+    def on_delete_certificate(self, certificate_hash_data):
+        print('Delete certificate')
+        try:
+            _result = call_result.DeleteCertificatePayload(
+               status="NoProfiles",
+                status_info={
+                    "reasonCode":"wewedw"
+                }
+            )
+            
+        except Exception as e:
+            print(traceback.format_exc())
+            
+        return _result
+
+    @on(Action.FirmwareStatusNotification)
+    def on_firmware_status_notification(self, status, request_id):
+        print('Firmware Status Notification')
+        try:
+            _result = call_result.FirmwareStatusNotificationPayload()
+            
+        except Exception as e:
+            print(traceback.format_exc())
+            
+        return _result
+
+    @on(Action.Get15118EVCertificate)
+    def on_get_15118_ev_certificate(self, iso15118_schema_version, action, exi_request):
+        print('Get 15118 EVcertificate')
+        try:
+            _result = call_result.Get15118EVCertificatePayload(
+                status='Accepted',
+                exiReponse='acaefwef',
+                status_info={
+                    'reasonCode':'asdcadcfw'
+                }
+            )
+        except Exception as e:
+            print(traceback.format_exc())
+            
+        return _result
+
+    @on(Action.GetBaseReport)
+    def on_get_base_report(self, rerquest_id, report_base):
+        print('Get base report')
+        try:
+            _result = call_result.GetBaseReportPayload(
+                status='Accepted',
+                status_info={
+                    'reasonCode':'asdcadcfw'
+                }
+
+            )
+        except Exception as e:
+            print(traceback.format_exc())
+            
+        return _result
+
 async def on_connect(websocket, path):
     """ For every new charge point that connects, create a ChargePoint
     instance and start listening for messages.
